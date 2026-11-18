@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,6 +29,9 @@
         .status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold; color:#fff; }
         .status-available { background:var(--success); }
         .status-occupied { background:var(--danger); }
+        .status-paid { background:var(--success); }
+        .status-unpaid { background:var(--danger); }
+        .filter-row { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:8px; }
         .loading { text-align:center; color:#64748b; padding:12px; font-style:italic; }
         .info { font-size:11px; color:#64748b; }
         .hidden { display:none; }
@@ -80,10 +82,70 @@
 
         <div id="panel-kas" class="panel aktif">
             <div class="card"><h2>Record Rent Payment</h2>
-                <input type="text" id="ket-kas" placeholder="Description (e.g., Unit 01 - October Rent)">
+                <input type="text" id="unit-name" placeholder="Unit Name (e.g., Unit 101)">
+                <select id="payment-month">
+                    <option value="">Select Month</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+                <select id="payment-year">
+                    <option value="">Select Year</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                    <option value="2029">2029</option>
+                    <option value="2030">2030</option>
+                </select>
                 <input type="number" id="nom-kas" placeholder="Amount ($)">
-                <button class="btn" onclick="simpanKas()">Save Payment</button>
+                <select id="payment-status">
+                    <option value="Paid">🟢 Paid</option>
+                    <option value="Unpaid">🔴 Unpaid</option>
+                </select>
+                <button class="btn btn-success" onclick="simpanKas()">Save Payment</button>
             </div>
+
+            <div class="card"><h2>Filter Payments</h2>
+                <div class="filter-row">
+                    <select id="filter-month" onchange="tampilkanKas()">
+                        <option value="">All Months</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                    <select id="filter-year" onchange="tampilkanKas()">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="card"><h2>Payment History</h2>
                 <div id="riwayat-kas" class="loading">Loading...</div>
             </div>
@@ -255,21 +317,68 @@
             });
         }
         function simpanKas() {
-            const ket = document.getElementById('ket-kas').value || 'No Description';
+            const unitName = document.getElementById('unit-name').value.trim();
+            const month = document.getElementById('payment-month').value;
+            const year = document.getElementById('payment-year').value;
             const nom = document.getElementById('nom-kas').value;
-            if (!nom) { alert("Please enter an amount!"); return; }
-            dbT('kas').push({ ket: ket, nominal: Number(nom), tanggal: new Date().toLocaleString('en-US') });
-            document.getElementById('ket-kas').value = ''; document.getElementById('nom-kas').value = '';
+            const status = document.getElementById('payment-status').value;
+            
+            if (!unitName || !month || !year || !nom) { 
+                alert("Please fill in all fields: Unit Name, Month, Year, and Amount!"); 
+                return; 
+            }
+            
+            dbT('kas').push({ 
+                unitName: unitName,
+                month: month,
+                year: year,
+                nominal: Number(nom), 
+                status: status,
+                tanggal: new Date().toLocaleString('en-US') 
+            });
+            
+            document.getElementById('unit-name').value = '';
+            document.getElementById('payment-month').value = '';
+            document.getElementById('payment-year').value = '';
+            document.getElementById('nom-kas').value = '';
+            document.getElementById('payment-status').value = 'Paid';
+            alert('✅ Payment recorded successfully!');
         }
         function tampilkanKas() {
+            const filterMonth = document.getElementById('filter-month').value;
+            const filterYear = document.getElementById('filter-year').value;
             const r = document.getElementById('riwayat-kas');
-            if (!dataKas.length) { r.innerHTML = 'No payment records found for this property.'; return; }
-            r.innerHTML = dataKas.map(i =>
-                '<div class="item-list">' + i.ket + ' - $' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}) +
-                ' <button style="float:right;background:var(--danger);color:#fff;border:none;padding:2px 6px;border-radius:3px;cursor:pointer;" onclick="hapusKas(\'' + i.id + '\')">Delete</button></div>'
-            ).join('');
+            
+            let filteredData = dataKas;
+            if (filterMonth) {
+                filteredData = filteredData.filter(i => i.month === filterMonth);
+            }
+            if (filterYear) {
+                filteredData = filteredData.filter(i => i.year === filterYear);
+            }
+            
+            if (!filteredData.length) { 
+                r.innerHTML = 'No payment records found for this filter.'; 
+                return; 
+            }
+            
+            r.innerHTML = filteredData.map(i => {
+                const statusClass = i.status === 'Paid' ? 'status-paid' : 'status-unpaid';
+                const toggleBtnText = i.status === 'Paid' ? 'Mark Unpaid' : 'Mark Paid';
+                const toggleBtnClass = i.status === 'Paid' ? 'btn-warning' : 'btn-success';
+                
+                return '<div class="item-list"><b>' + i.unitName + '</b><br>' +
+                       i.month + ' ' + i.year + ' - $' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}) + '<br>' +
+                       '<span class="status-badge ' + statusClass + '">' + i.status + '</span><br>' +
+                       '<button class="btn btn-sm ' + toggleBtnClass + '" onclick="toggleStatusKas(\'' + i.id + '\', \'' + i.status + '\')">' + toggleBtnText + '</button>' +
+                       '<button class="btn btn-sm btn-danger" onclick="hapusKas(\'' + i.id + '\')">Delete</button></div>';
+            }).join('');
         }
-        function hapusKas(id) { if (confirm("Are you sure you want to delete this?")) dbT('kas/' + id).remove(); }
+        function toggleStatusKas(id, currentStatus) {
+            const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+            dbT('kas/' + id).update({ status: newStatus });
+        }
+        function hapusKas(id) { if (confirm("Are you sure you want to delete this payment?")) dbT('kas/' + id).remove(); }
 
         function tambahUnit() {
             const nama = document.getElementById('unit-nama').value.trim();
