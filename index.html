@@ -497,7 +497,7 @@
             window.open(waURL, '_blank');
         }
 
-        // FITUR EXPORT PDF
+        // FITUR EXPORT PDF (DENGAN DELAY 1 DETIK)
         function exportPDF() {
             const filterMonth = document.getElementById('filter-month').value;
             const filterYear = document.getElementById('filter-year').value;
@@ -536,22 +536,28 @@
             document.getElementById('pdf-total-paid').innerText = '$' + totalPaid.toLocaleString('en-US', {minimumFractionDigits: 2});
             document.getElementById('pdf-total-unpaid').innerText = '$' + totalUnpaid.toLocaleString('en-US', {minimumFractionDigits: 2});
             
-            // Generate PDF
+            // Tampilkan element PDF
             const element = document.getElementById('pdf-report');
             element.style.display = 'block';
             
-            const opt = {
-                margin: 10,
-                filename: 'RentDesk-Report-' + (filterMonth || 'All') + '-' + (filterYear || 'All') + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none';
-                alert('✅ PDF report downloaded successfully!');
-            });
+            // TUNGGU 1 DETIK agar tabel ter-render sempurna
+            setTimeout(() => {
+                const opt = {
+                    margin: 10,
+                    filename: 'RentDesk-Report-' + (filterMonth || 'All') + '-' + (filterYear || 'All') + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.style.display = 'none';
+                    alert('✅ PDF report downloaded successfully!');
+                }).catch(err => {
+                    element.style.display = 'none';
+                    alert('❌ Error generating PDF: ' + err.message);
+                });
+            }, 1000); // Delay 1000ms = 1 detik
         }
 
         // UPDATE DASHBOARD RINGKASAN
