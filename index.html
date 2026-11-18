@@ -181,15 +181,17 @@
     </div>
 
     <script>
+        // ✅ KONFIGURASI BARU UNTUK PROJECT RENTDESK-APP
         const firebaseConfig = {
-            apiKey: "AIzaSyB9que_uQliALp5mOzhQdI1XWULQjR2px4",
-            authDomain: "toko-perabot.firebaseapp.com",
-            databaseURL: "https://toko-perabot-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "toko-perabot",
-            storageBucket: "toko-perabot.firebasestorage.app",
-            messagingSenderId: "1033085178683",
-            appId: "1:1033085178683:web:c127a5b0a85c0ee05d1d1e"
+            apiKey: "AIzaSyD0hn8IS0DqOfX-Pj-sdDJI6r7LLMdusOU",
+            authDomain: "rentdesk-app.firebaseapp.com",
+            databaseURL: "https://rentdesk-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rentdesk-app",
+            storageBucket: "rentdesk-app.firebasestorage.app",
+            messagingSenderId: "754094369590",
+            appId: "1:754094369590:web:b79e1c2747cb828d366197"
         };
+        
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
@@ -227,14 +229,18 @@
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(cred => {
                     const uid = cred.user.uid;
-                    const tenantId = 'toko_' + uid.substring(0, 8);
-                    return db.ref('users/' + uid).set({
+                    // Menggunakan prefix 'prop_' karena ini database baru yang bersih
+                    const tenantId = 'prop_' + uid.substring(0, 8);
+                    
+                    const updates = {};
+                    updates['users/' + uid] = {
                         email: email, nama: nama, role: 'owner', tenantId: tenantId
-                    }).then(() => {
-                        return db.ref('tenants/' + tenantId + '/profile').set({
-                            nama: toko, pemilik: nama, dibuat: new Date().toISOString()
-                        });
-                    });
+                    };
+                    updates['tenants/' + tenantId + '/profile'] = {
+                        nama: toko, pemilik: nama, dibuat: new Date().toISOString()
+                    };
+                    
+                    return db.ref().update(updates);
                 })
                 .then(() => {
                     info.innerHTML = '✅ Success! Please sign in with your new account.';
