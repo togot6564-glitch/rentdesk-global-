@@ -227,7 +227,7 @@
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(cred => {
                     const uid = cred.user.uid;
-                    const tenantId = 'prop_' + uid.substring(0, 8);
+                    const tenantId = 'toko_' + uid.substring(0, 8);
                     return db.ref('users/' + uid).set({
                         email: email, nama: nama, role: 'owner', tenantId: tenantId
                     }).then(() => {
