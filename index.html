@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { --primary:#0284c7; --success:#16a34a; --danger:#dc2626; --warning:#f59e0b; --bg:#f8fafc; --card:#fff; --text:#334155; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); padding:10px; margin:0; font-size:14px; }
@@ -18,6 +19,8 @@
         .btn-success { background:var(--success); }
         .btn-danger { background:var(--danger); }
         .btn-warning { background:var(--warning); }
+        .btn-whatsapp { background:#25D366; }
+        .btn-pdf { background:#e11d48; }
         .btn-out { background:#475569; }
         .btn-link { background:none; color:var(--primary); border:none; cursor:pointer; font-size:12px; text-decoration:underline; padding:4px; }
         .btn-sm { width:auto; padding:4px 8px; font-size:11px; margin:0 2px; }
@@ -38,6 +41,25 @@
         .tab-login { display:flex; gap:5px; margin-bottom:10px; }
         .tab-btn { flex:1; padding:8px; background:#fff; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; }
         .tab-btn.aktif { background:var(--primary); color:#fff; }
+        
+        /* Dashboard Ringkasan */
+        .dashboard-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:10px; }
+        .stat-card { background:var(--card); padding:10px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.1); text-align:center; }
+        .stat-value { font-size:1.2rem; font-weight:bold; color:var(--primary); margin:4px 0; }
+        .stat-label { font-size:0.7rem; color:#64748b; }
+        .stat-income .stat-value { color:var(--success); }
+        .stat-unpaid .stat-value { color:var(--danger); }
+        .stat-available .stat-value { color:var(--success); }
+        .stat-occupied .stat-value { color:var(--warning); }
+        
+        /* PDF Report Styles */
+        #pdf-report { display:none; padding:20px; background:#fff; }
+        #pdf-report h1 { color:var(--primary); font-size:1.5rem; margin-bottom:5px; }
+        #pdf-report .report-subtitle { color:#64748b; font-size:0.9rem; margin-bottom:20px; }
+        #pdf-report table { width:100%; border-collapse:collapse; margin-top:15px; }
+        #pdf-report th, #pdf-report td { border:1px solid #cbd5e1; padding:8px; text-align:left; font-size:0.85rem; }
+        #pdf-report th { background:var(--primary); color:#fff; }
+        #pdf-report .total-row { font-weight:bold; background:#f1f5f9; }
     </style>
 </head>
 <body>
@@ -75,6 +97,26 @@
         <header><h2 id="toko-judul" style="color:#fff;border:none;margin:0;">My Properties</h2>
         <p id="toko-user" style="margin:2px 0 0;font-size:.75rem;"></p></header>
 
+        <!-- DASHBOARD RINGKASAN -->
+        <div id="dashboard-ringkasan" class="dashboard-grid">
+            <div class="stat-card stat-income">
+                <div class="stat-label">💰 Total Income (Paid)</div>
+                <div class="stat-value" id="stat-income">$0.00</div>
+            </div>
+            <div class="stat-card stat-unpaid">
+                <div class="stat-label">⏳ Unpaid Bills</div>
+                <div class="stat-value" id="stat-unpaid">$0.00</div>
+            </div>
+            <div class="stat-card stat-available">
+                <div class="stat-label">🟢 Available Units</div>
+                <div class="stat-value" id="stat-available">0</div>
+            </div>
+            <div class="stat-card stat-occupied">
+                <div class="stat-label">🔴 Occupied Units</div>
+                <div class="stat-value" id="stat-occupied">0</div>
+            </div>
+        </div>
+
         <div class="menu-grid">
             <div class="menu-btn aktif" onclick="gantiPanel('kas',this)">Payments</div>
             <div class="menu-btn" onclick="gantiPanel('produk',this)">Units</div>
@@ -83,6 +125,7 @@
         <div id="panel-kas" class="panel aktif">
             <div class="card"><h2>Record Rent Payment</h2>
                 <input type="text" id="unit-name" placeholder="Unit Name (e.g., Unit 101)">
+                <input type="tel" id="tenant-phone" placeholder="Tenant WhatsApp (e.g., 6281234567890)">
                 <select id="payment-month">
                     <option value="">Select Month</option>
                     <option value="January">January</option>
@@ -146,7 +189,9 @@
                 </div>
             </div>
 
-            <div class="card"><h2>Payment History</h2>
+            <div class="card">
+                <h2>Payment History</h2>
+                <button class="btn btn-pdf" onclick="exportPDF()">📄 Export Monthly Report (PDF)</button>
                 <div id="riwayat-kas" class="loading">Loading...</div>
             </div>
         </div>
@@ -169,6 +214,39 @@
         <button class="btn btn-out" onclick="prosesLogout()">Sign Out</button>
     </div>
 
+    <!-- Hidden PDF Report Template -->
+    <div id="pdf-report">
+        <h1 id="pdf-title">RentDesk - Monthly Report</h1>
+        <div class="report-subtitle" id="pdf-subtitle">Property: Kantor Pusat</div>
+        <div class="report-subtitle" id="pdf-period">Period: All</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Period</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="pdf-tbody"></tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="2">Total Income (Paid)</td>
+                    <td id="pdf-total-paid">$0.00</td>
+                    <td></td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2">Total Unpaid</td>
+                    <td id="pdf-total-unpaid">$0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div style="margin-top:20px; font-size:0.75rem; color:#64748b; text-align:center;">
+            Generated by RentDesk ☁️ | rentdesk-global.vercel.app
+        </div>
+    </div>
+
     <div id="view-pusat" class="hidden">
         <header><h2 style="color:#fff;border:none;margin:0;">🏢 Super Admin Dashboard</h2>
         <p style="margin:2px 0 0;font-size:.75rem;">Logged in as Super Admin</p></header>
@@ -181,7 +259,6 @@
     </div>
 
     <script>
-        // ✅ KONFIGURASI BARU UNTUK PROJECT RENTDESK-APP
         const firebaseConfig = {
             apiKey: "AIzaSyD0hn8IS0DqOfX-Pj-sdDJI6r7LLMdusOU",
             authDomain: "rentdesk-app.firebaseapp.com",
@@ -197,6 +274,7 @@
         const auth = firebase.auth();
 
         let currentUser = null;
+        let propertyName = 'My Property';
 
         function dbT(path) {
             return db.ref('tenants/' + currentUser.tenantId + '/' + path);
@@ -229,7 +307,6 @@
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(cred => {
                     const uid = cred.user.uid;
-                    // Menggunakan prefix 'prop_' karena ini database baru yang bersih
                     const tenantId = 'prop_' + uid.substring(0, 8);
                     
                     const updates = {};
@@ -300,7 +377,8 @@
             document.getElementById('view-toko').classList.remove('hidden');
             db.ref('tenants/' + currentUser.tenantId + '/profile').once('value').then(s => {
                 const p = s.val() || {};
-                document.getElementById('toko-judul').innerText = (p.nama || 'My Property') + " ☁️";
+                propertyName = p.nama || 'My Property';
+                document.getElementById('toko-judul').innerText = propertyName + " ☁️";
                 document.getElementById('toko-user').innerText = "Logged in as: " + currentUser.nama + " (ID: " + currentUser.tenantId + ")";
             });
             initKas();
@@ -315,27 +393,33 @@
         }
 
         let dataKas = [];
+        let dataProduk = [];
+        
         function initKas() {
             dbT('kas').on('value', snap => {
                 dataKas = [];
                 if (snap.exists()) snap.forEach(c => { const it = c.val(); it.id = c.key; dataKas.push(it); });
                 tampilkanKas();
+                updateDashboard();
             });
         }
+        
         function simpanKas() {
             const unitName = document.getElementById('unit-name').value.trim();
+            const phone = document.getElementById('tenant-phone').value.trim();
             const month = document.getElementById('payment-month').value;
             const year = document.getElementById('payment-year').value;
             const nom = document.getElementById('nom-kas').value;
             const status = document.getElementById('payment-status').value;
             
             if (!unitName || !month || !year || !nom) { 
-                alert("Please fill in all fields: Unit Name, Month, Year, and Amount!"); 
+                alert("Please fill in: Unit Name, Month, Year, and Amount!"); 
                 return; 
             }
             
             dbT('kas').push({ 
                 unitName: unitName,
+                tenantPhone: phone,
                 month: month,
                 year: year,
                 nominal: Number(nom), 
@@ -344,12 +428,14 @@
             });
             
             document.getElementById('unit-name').value = '';
+            document.getElementById('tenant-phone').value = '';
             document.getElementById('payment-month').value = '';
             document.getElementById('payment-year').value = '';
             document.getElementById('nom-kas').value = '';
             document.getElementById('payment-status').value = 'Paid';
             alert('✅ Payment recorded successfully!');
         }
+        
         function tampilkanKas() {
             const filterMonth = document.getElementById('filter-month').value;
             const filterYear = document.getElementById('filter-year').value;
@@ -372,19 +458,121 @@
                 const statusClass = i.status === 'Paid' ? 'status-paid' : 'status-unpaid';
                 const toggleBtnText = i.status === 'Paid' ? 'Mark Unpaid' : 'Mark Paid';
                 const toggleBtnClass = i.status === 'Paid' ? 'btn-warning' : 'btn-success';
+                const waBtn = i.tenantPhone ? 
+                    '<button class="btn btn-sm btn-whatsapp" onclick="kirimWA(\'' + i.id + '\')">💬 WhatsApp</button>' : '';
                 
                 return '<div class="item-list"><b>' + i.unitName + '</b><br>' +
                        i.month + ' ' + i.year + ' - $' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}) + '<br>' +
                        '<span class="status-badge ' + statusClass + '">' + i.status + '</span><br>' +
                        '<button class="btn btn-sm ' + toggleBtnClass + '" onclick="toggleStatusKas(\'' + i.id + '\', \'' + i.status + '\')">' + toggleBtnText + '</button>' +
+                       waBtn +
                        '<button class="btn btn-sm btn-danger" onclick="hapusKas(\'' + i.id + '\')">Delete</button></div>';
             }).join('');
         }
+        
         function toggleStatusKas(id, currentStatus) {
             const newStatus = currentStatus === 'Paid' ? 'Unpaid' : 'Paid';
             dbT('kas/' + id).update({ status: newStatus });
         }
+        
         function hapusKas(id) { if (confirm("Are you sure you want to delete this payment?")) dbT('kas/' + id).remove(); }
+
+        // FITUR KIRIM WHATSAPP
+        function kirimWA(id) {
+            const payment = dataKas.find(p => p.id === id);
+            if (!payment || !payment.tenantPhone) {
+                alert("⚠️ No WhatsApp number saved for this payment!");
+                return;
+            }
+            
+            const phone = payment.tenantPhone.replace(/[^0-9]/g, '');
+            const message = `Hello!%0A%0AThis is a rent payment reminder from *${propertyName}*:%0A%0A` +
+                           `📍 Unit: *${payment.unitName}*%0A` +
+                           `📅 Period: *${payment.month} ${payment.year}*%0A` +
+                           `💰 Amount: *$${Number(payment.nominal).toLocaleString('en-US', {minimumFractionDigits: 2})}*%0A` +
+                           `📊 Status: *${payment.status}*%0A%0A` +
+                           `Thank you! 🙏`;
+            
+            const waURL = `https://wa.me/${phone}?text=${message}`;
+            window.open(waURL, '_blank');
+        }
+
+        // FITUR EXPORT PDF
+        function exportPDF() {
+            const filterMonth = document.getElementById('filter-month').value;
+            const filterYear = document.getElementById('filter-year').value;
+            
+            let filteredData = dataKas;
+            if (filterMonth) filteredData = filteredData.filter(i => i.month === filterMonth);
+            if (filterYear) filteredData = filteredData.filter(i => i.year === filterYear);
+            
+            if (!filteredData.length) {
+                alert("⚠️ No data to export! Please add payments first.");
+                return;
+            }
+            
+            // Update PDF template
+            document.getElementById('pdf-title').innerText = 'RentDesk - Monthly Report';
+            document.getElementById('pdf-subtitle').innerText = 'Property: ' + propertyName;
+            document.getElementById('pdf-period').innerText = 'Period: ' + 
+                (filterMonth && filterYear ? filterMonth + ' ' + filterYear : 
+                 filterMonth ? filterMonth + ' (All Years)' : 
+                 filterYear ? 'All Months ' + filterYear : 'All Time');
+            
+            let totalPaid = 0, totalUnpaid = 0;
+            const tbody = document.getElementById('pdf-tbody');
+            tbody.innerHTML = filteredData.map(i => {
+                if (i.status === 'Paid') totalPaid += Number(i.nominal);
+                else totalUnpaid += Number(i.nominal);
+                
+                return '<tr>' +
+                       '<td>' + i.unitName + '</td>' +
+                       '<td>' + i.month + ' ' + i.year + '</td>' +
+                       '<td>$' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}) + '</td>' +
+                       '<td>' + i.status + '</td>' +
+                       '</tr>';
+            }).join('');
+            
+            document.getElementById('pdf-total-paid').innerText = '$' + totalPaid.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('pdf-total-unpaid').innerText = '$' + totalUnpaid.toLocaleString('en-US', {minimumFractionDigits: 2});
+            
+            // Generate PDF
+            const element = document.getElementById('pdf-report');
+            element.style.display = 'block';
+            
+            const opt = {
+                margin: 10,
+                filename: 'RentDesk-Report-' + (filterMonth || 'All') + '-' + (filterYear || 'All') + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+                alert('✅ PDF report downloaded successfully!');
+            });
+        }
+
+        // UPDATE DASHBOARD RINGKASAN
+        function updateDashboard() {
+            let totalIncome = 0, totalUnpaid = 0;
+            dataKas.forEach(i => {
+                if (i.status === 'Paid') totalIncome += Number(i.nominal);
+                else totalUnpaid += Number(i.nominal);
+            });
+            
+            let available = 0, occupied = 0;
+            dataProduk.forEach(p => {
+                if (p.status === 'Available') available++;
+                else occupied++;
+            });
+            
+            document.getElementById('stat-income').innerText = '$' + totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('stat-unpaid').innerText = '$' + totalUnpaid.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('stat-available').innerText = available;
+            document.getElementById('stat-occupied').innerText = occupied;
+        }
 
         function tambahUnit() {
             const nama = document.getElementById('unit-nama').value.trim();
@@ -419,11 +607,12 @@
 
         function initProduk() {
             dbT('products').on('value', snap => {
+                dataProduk = [];
                 const r = document.getElementById('riwayat-produk');
-                if (!snap.exists()) { r.innerHTML = 'No units added yet. Add your first unit above!'; return; }
+                if (!snap.exists()) { r.innerHTML = 'No units added yet. Add your first unit above!'; updateDashboard(); return; }
                 let html = '';
                 snap.forEach(c => { 
-                    const p = c.val();
+                    const p = c.val(); p.id = c.key; dataProduk.push(p);
                     const statusClass = p.status === 'Available' ? 'status-available' : 'status-occupied';
                     const toggleBtnText = p.status === 'Available' ? 'Mark Occupied' : 'Mark Available';
                     const toggleBtnClass = p.status === 'Available' ? 'btn-warning' : 'btn-success';
@@ -436,6 +625,7 @@
                             '</div>';
                 });
                 r.innerHTML = html;
+                updateDashboard();
             });
         }
 
