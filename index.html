@@ -7,30 +7,38 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <!-- GANTI html2pdf DENGAN jsPDF + AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
-        :root { --primary:#0284c7; --success:#16a34a; --danger:#dc2626; --warning:#f59e0b; --bg:#f8fafc; --card:#fff; --text:#334155; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); padding:10px; margin:0; font-size:14px; }
+        :root {
+            --primary:#0284c7; --success:#16a34a; --danger:#dc2626; --warning:#f59e0b;
+            --bg:#f8fafc; --card:#fff; --text:#334155; --border:#cbd5e1;
+        }
+        body.dark {
+            --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --border:#475569;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); padding:10px; margin:0; font-size:14px; transition: background 0.3s, color 0.3s; }
         header { text-align:center; margin-bottom:12px; padding:10px; background:var(--primary); color:#fff; border-radius:8px; }
         .card { background:var(--card); padding:12px; border-radius:8px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
         h2 { color:var(--primary); font-size:1.05rem; margin:0 0 8px; }
-        input, select { width:100%; padding:9px; margin-bottom:8px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:13px; }
+        input, select { width:100%; padding:9px; margin-bottom:8px; border:1px solid var(--border); border-radius:6px; box-sizing:border-box; font-size:13px; background:var(--card); color:var(--text); }
         .btn { width:100%; padding:9px; background:var(--primary); color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:6px; font-size:13px; }
         .btn-success { background:var(--success); }
         .btn-danger { background:var(--danger); }
         .btn-warning { background:var(--warning); }
         .btn-whatsapp { background:#25D366; }
         .btn-pdf { background:#e11d48; }
+        .btn-email { background:#8b5cf6; }
         .btn-out { background:#475569; }
         .btn-link { background:none; color:var(--primary); border:none; cursor:pointer; font-size:12px; text-decoration:underline; padding:4px; }
         .btn-sm { width:auto; padding:4px 8px; font-size:11px; margin:0 2px; }
         .menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; margin-bottom:10px; }
-        .menu-btn { padding:8px; background:#fff; border:1px solid #cbd5e1; border-radius:6px; font-weight:bold; text-align:center; cursor:pointer; color:var(--primary); font-size:12px; }
+        .menu-btn { padding:8px; background:var(--card); border:1px solid var(--border); border-radius:6px; font-weight:bold; text-align:center; cursor:pointer; color:var(--primary); font-size:12px; }
         .menu-btn.aktif { background:var(--primary); color:#fff; }
         .panel { display:none; } .panel.aktif { display:block; }
-        .item-list { font-size:12px; border-bottom:1px solid #e2e8f0; padding:8px; background:#f8fafc; margin-bottom:6px; border-radius:6px; }
+        .item-list { font-size:12px; border-bottom:1px solid var(--border); padding:8px; background:var(--bg); margin-bottom:6px; border-radius:6px; }
         .status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold; color:#fff; }
         .status-available { background:var(--success); }
         .status-occupied { background:var(--danger); }
@@ -41,7 +49,7 @@
         .info { font-size:11px; color:#64748b; }
         .hidden { display:none; }
         .tab-login { display:flex; gap:5px; margin-bottom:10px; }
-        .tab-btn { flex:1; padding:8px; background:#fff; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; }
+        .tab-btn { flex:1; padding:8px; background:var(--card); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; color:var(--text); }
         .tab-btn.aktif { background:var(--primary); color:#fff; }
         
         .dashboard-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:10px; }
@@ -52,35 +60,47 @@
         .stat-unpaid .stat-value { color:var(--danger); }
         .stat-available .stat-value { color:var(--success); }
         .stat-occupied .stat-value { color:var(--warning); }
+        
+        .top-controls { display:flex; gap:5px; margin-bottom:10px; justify-content:center; }
+        .control-btn { padding:6px 10px; background:var(--card); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:11px; color:var(--text); }
+        .control-btn.aktif { background:var(--primary); color:#fff; }
+        
+        .chart-container { position:relative; height:250px; margin:10px 0; }
     </style>
 </head>
 <body>
 
     <div id="view-auth">
         <header><h2 style="color:#fff;border:none;margin:0;">RentDesk ☁️</h2>
-        <p style="margin:2px 0 0;font-size:.75rem;">Simple Property & Tenant Management</p></header>
+        <p style="margin:2px 0 0;font-size:.75rem;" data-i18n="subtitle">Simple Property & Tenant Management</p></header>
+
+        <div class="top-controls">
+            <button class="control-btn aktif" onclick="setLang('en', this)">🇬🇧 EN</button>
+            <button class="control-btn" onclick="setLang('id', this)">🇮🇩 ID</button>
+            <button class="control-btn" onclick="toggleDark()">🌙 <span data-i18n="darkMode">Dark</span></button>
+        </div>
 
         <div class="tab-login">
-            <button class="tab-btn aktif" onclick="gantiTab('masuk',this)">Sign In</button>
-            <button class="tab-btn" onclick="gantiTab('daftar',this)">Register Property</button>
+            <button class="tab-btn aktif" onclick="gantiTab('masuk',this)" data-i18n="signIn">Sign In</button>
+            <button class="tab-btn" onclick="gantiTab('daftar',this)" data-i18n="register">Register Property</button>
         </div>
 
         <div id="form-masuk" class="card">
-            <h2>Welcome Back</h2>
-            <input type="email" id="masuk-email" placeholder="Email Address">
-            <input type="password" id="masuk-pass" placeholder="Password">
-            <button class="btn" onclick="prosesMasuk()">Sign In</button>
-            <button class="btn-link" onclick="lupaPassword()">Forgot password? Reset here</button>
+            <h2 data-i18n="welcomeBack">Welcome Back</h2>
+            <input type="email" id="masuk-email" placeholder="Email Address" data-i18n-ph="emailPlaceholder">
+            <input type="password" id="masuk-pass" placeholder="Password" data-i18n-ph="passwordPlaceholder">
+            <button class="btn" onclick="prosesMasuk()" data-i18n="signIn">Sign In</button>
+            <button class="btn-link" onclick="lupaPassword()" data-i18n="forgotPassword">Forgot password? Reset here</button>
             <p class="info" id="masuk-info"></p>
         </div>
 
         <div id="form-daftar" class="card hidden">
-            <h2>Register New Property</h2>
-            <input type="text" id="daftar-nama" placeholder="Landlord Full Name">
-            <input type="text" id="daftar-toko" placeholder="Property Name (e.g., Sunset Apartments)">
-            <input type="email" id="daftar-email" placeholder="Email Address">
-            <input type="password" id="daftar-pass" placeholder="Password (min 6 characters)">
-            <button class="btn" onclick="prosesDaftar()">Create Account</button>
+            <h2 data-i18n="registerNew">Register New Property</h2>
+            <input type="text" id="daftar-nama" placeholder="Landlord Full Name" data-i18n-ph="landlordName">
+            <input type="text" id="daftar-toko" placeholder="Property Name (e.g., Sunset Apartments)" data-i18n-ph="propertyName">
+            <input type="email" id="daftar-email" placeholder="Email Address" data-i18n-ph="emailPlaceholder">
+            <input type="password" id="daftar-pass" placeholder="Password (min 6 characters)" data-i18n-ph="passwordMin">
+            <button class="btn" onclick="prosesDaftar()" data-i18n="createAccount">Create Account</button>
             <p class="info" id="daftar-info"></p>
         </div>
     </div>
@@ -89,36 +109,51 @@
         <header><h2 id="toko-judul" style="color:#fff;border:none;margin:0;">My Properties</h2>
         <p id="toko-user" style="margin:2px 0 0;font-size:.75rem;"></p></header>
 
+        <div class="top-controls">
+            <button class="control-btn aktif" onclick="setLang('en', this)">🇬🇧 EN</button>
+            <button class="control-btn" onclick="setLang('id', this)">🇮🇩 ID</button>
+            <button class="control-btn" onclick="toggleDark()">🌙 <span data-i18n="darkMode">Dark</span></button>
+        </div>
+
         <div id="dashboard-ringkasan" class="dashboard-grid">
             <div class="stat-card stat-income">
-                <div class="stat-label">💰 Total Income (Paid)</div>
+                <div class="stat-label" data-i18n="totalIncome">💰 Total Income (Paid)</div>
                 <div class="stat-value" id="stat-income">$0.00</div>
             </div>
             <div class="stat-card stat-unpaid">
-                <div class="stat-label">⏳ Unpaid Bills</div>
+                <div class="stat-label" data-i18n="unpaidBills">⏳ Unpaid Bills</div>
                 <div class="stat-value" id="stat-unpaid">$0.00</div>
             </div>
             <div class="stat-card stat-available">
-                <div class="stat-label">🟢 Available Units</div>
+                <div class="stat-label" data-i18n="availableUnits">🟢 Available Units</div>
                 <div class="stat-value" id="stat-available">0</div>
             </div>
             <div class="stat-card stat-occupied">
-                <div class="stat-label">🔴 Occupied Units</div>
+                <div class="stat-label" data-i18n="occupiedUnits">🔴 Occupied Units</div>
                 <div class="stat-value" id="stat-occupied">0</div>
             </div>
         </div>
 
+        <div class="card">
+            <h2 data-i18n="monthlyIncomeChart">📊 Monthly Income Chart</h2>
+            <div class="chart-container">
+                <canvas id="incomeChart"></canvas>
+            </div>
+        </div>
+
         <div class="menu-grid">
-            <div class="menu-btn aktif" onclick="gantiPanel('kas',this)">Payments</div>
-            <div class="menu-btn" onclick="gantiPanel('produk',this)">Units</div>
+            <div class="menu-btn aktif" onclick="gantiPanel('kas',this)" data-i18n="payments">Payments</div>
+            <div class="menu-btn" onclick="gantiPanel('produk',this)" data-i18n="units">Units</div>
         </div>
 
         <div id="panel-kas" class="panel aktif">
-            <div class="card"><h2>Record Rent Payment</h2>
-                <input type="text" id="unit-name" placeholder="Unit Name (e.g., Unit 101)">
-                <input type="tel" id="tenant-phone" placeholder="Tenant WhatsApp (e.g., 6281234567890)">
+            <div class="card"><h2 data-i18n="recordPayment">Record Rent Payment</h2>
+                <input type="text" id="unit-name" placeholder="Unit Name (e.g., Unit 101)" data-i18n-ph="unitName">
+                <input type="text" id="tenant-name" placeholder="Tenant Name" data-i18n-ph="tenantName">
+                <input type="email" id="tenant-email" placeholder="Tenant Email (for notification)" data-i18n-ph="tenantEmail">
+                <input type="tel" id="tenant-phone" placeholder="Tenant WhatsApp (e.g., 6281234567890)" data-i18n-ph="tenantPhone">
                 <select id="payment-month">
-                    <option value="">Select Month</option>
+                    <option value="" data-i18n="selectMonth">Select Month</option>
                     <option value="January">January</option>
                     <option value="February">February</option>
                     <option value="March">March</option>
@@ -133,7 +168,7 @@
                     <option value="December">December</option>
                 </select>
                 <select id="payment-year">
-                    <option value="">Select Year</option>
+                    <option value="" data-i18n="selectYear">Select Year</option>
                     <option value="2024">2024</option>
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
@@ -142,18 +177,18 @@
                     <option value="2029">2029</option>
                     <option value="2030">2030</option>
                 </select>
-                <input type="number" id="nom-kas" placeholder="Amount ($)">
+                <input type="number" id="nom-kas" placeholder="Amount ($)" data-i18n-ph="amount">
                 <select id="payment-status">
                     <option value="Paid">🟢 Paid</option>
                     <option value="Unpaid">🔴 Unpaid</option>
                 </select>
-                <button class="btn btn-success" onclick="simpanKas()">Save Payment</button>
+                <button class="btn btn-success" onclick="simpanKas()" data-i18n="savePayment">Save Payment</button>
             </div>
 
-            <div class="card"><h2>Filter Payments</h2>
+            <div class="card"><h2 data-i18n="filterPayments">Filter Payments</h2>
                 <div class="filter-row">
                     <select id="filter-month" onchange="tampilkanKas()">
-                        <option value="">All Months</option>
+                        <option value="" data-i18n="allMonths">All Months</option>
                         <option value="January">January</option>
                         <option value="February">February</option>
                         <option value="March">March</option>
@@ -168,7 +203,7 @@
                         <option value="December">December</option>
                     </select>
                     <select id="filter-year" onchange="tampilkanKas()">
-                        <option value="">All Years</option>
+                        <option value="" data-i18n="allYears">All Years</option>
                         <option value="2024">2024</option>
                         <option value="2025">2025</option>
                         <option value="2026">2026</option>
@@ -181,28 +216,28 @@
             </div>
 
             <div class="card">
-                <h2>Payment History</h2>
-                <button class="btn btn-pdf" onclick="exportPDF()">📄 Export Monthly Report (PDF)</button>
+                <h2 data-i18n="paymentHistory">Payment History</h2>
+                <button class="btn btn-pdf" onclick="exportPDF()">📄 <span data-i18n="exportPDF">Export Monthly Report (PDF)</span></button>
                 <div id="riwayat-kas" class="loading">Loading...</div>
             </div>
         </div>
 
         <div id="panel-produk" class="panel">
-            <div class="card"><h2>Add New Unit</h2>
-                <input type="text" id="unit-nama" placeholder="Unit Name (e.g., Unit 101, Studio A)">
-                <input type="number" id="unit-harga" placeholder="Monthly Rent ($)">
+            <div class="card"><h2 data-i18n="addUnit">Add New Unit</h2>
+                <input type="text" id="unit-nama" placeholder="Unit Name (e.g., Unit 101, Studio A)" data-i18n-ph="unitName">
+                <input type="number" id="unit-harga" placeholder="Monthly Rent ($)" data-i18n-ph="monthlyRent">
                 <select id="unit-status">
                     <option value="Available">🟢 Available</option>
                     <option value="Occupied">🔴 Occupied</option>
                 </select>
-                <button class="btn btn-success" onclick="tambahUnit()">Add Unit</button>
+                <button class="btn btn-success" onclick="tambahUnit()" data-i18n="addUnit">Add Unit</button>
             </div>
-            <div class="card"><h2>Unit List</h2>
+            <div class="card"><h2 data-i18n="unitList">Unit List</h2>
                 <div id="riwayat-produk" class="loading">Loading...</div>
             </div>
         </div>
 
-        <button class="btn btn-out" onclick="prosesLogout()">Sign Out</button>
+        <button class="btn btn-out" onclick="prosesLogout()" data-i18n="signOut">Sign Out</button>
     </div>
 
     <div id="view-pusat" class="hidden">
@@ -217,6 +252,7 @@
     </div>
 
     <script>
+        // ==================== KONFIGURASI ====================
         const firebaseConfig = {
             apiKey: "AIzaSyD0hn8IS0DqOfX-Pj-sdDJI6r7LLMdusOU",
             authDomain: "rentdesk-app.firebaseapp.com",
@@ -227,12 +263,187 @@
             appId: "1:754094369590:web:b79e1c2747cb828d366197"
         };
         
+        // ✅ KREDENSIAL EMAILJS SUDAH DIISI!
+        const EMAILJS_PUBLIC_KEY = 'VkVbAUT_HDcsWC_pH';
+        const EMAILJS_SERVICE_ID = 'service_yfrhn1r';
+        const EMAILJS_TEMPLATE_ID = 'template_rentdesk';
+        
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
+        
+        // Init EmailJS dengan Public Key
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+        // ==================== MULTI-BAHASA ====================
+        const translations = {
+            en: {
+                subtitle: 'Simple Property & Tenant Management',
+                signIn: 'Sign In', register: 'Register Property',
+                welcomeBack: 'Welcome Back', registerNew: 'Register New Property',
+                forgotPassword: 'Forgot password? Reset here',
+                createAccount: 'Create Account',
+                emailPlaceholder: 'Email Address', passwordPlaceholder: 'Password',
+                landlordName: 'Landlord Full Name',
+                propertyName: 'Property Name (e.g., Sunset Apartments)',
+                passwordMin: 'Password (min 6 characters)',
+                darkMode: 'Dark',
+                totalIncome: '💰 Total Income (Paid)',
+                unpaidBills: '⏳ Unpaid Bills',
+                availableUnits: '🟢 Available Units',
+                occupiedUnits: '🔴 Occupied Units',
+                monthlyIncomeChart: '📊 Monthly Income Chart',
+                payments: 'Payments', units: 'Units',
+                recordPayment: 'Record Rent Payment',
+                unitName: 'Unit Name (e.g., Unit 101)',
+                tenantName: 'Tenant Name',
+                tenantEmail: 'Tenant Email (for notification)',
+                tenantPhone: 'Tenant WhatsApp (e.g., 6281234567890)',
+                selectMonth: 'Select Month', selectYear: 'Select Year',
+                amount: 'Amount ($)', savePayment: 'Save Payment',
+                filterPayments: 'Filter Payments',
+                allMonths: 'All Months', allYears: 'All Years',
+                paymentHistory: 'Payment History',
+                exportPDF: 'Export Monthly Report (PDF)',
+                addUnit: 'Add New Unit', monthlyRent: 'Monthly Rent ($)',
+                unitList: 'Unit List', signOut: 'Sign Out',
+                markUnpaid: 'Mark Unpaid', markPaid: 'Mark Paid',
+                delete: 'Delete', whatsapp: '💬 WhatsApp', sendEmail: '📧 Email',
+                allFieldsRequired: '⚠️ All fields are required!',
+                passwordMin6: '⚠️ Password must be at least 6 characters!',
+                creatingAccount: '⏳ Creating account...',
+                successRegister: '✅ Success! Please sign in with your new account.',
+                enterEmailPassword: '⚠️ Please enter email & password!',
+                processing: '⏳ Processing...',
+                paymentSaved: '✅ Payment recorded successfully!',
+                fillAllPayment: '⚠️ Please fill in: Unit Name, Month, Year, and Amount!',
+                noPaymentsFound: 'No payment records found for this filter.',
+                noUnitsYet: 'No units added yet. Add your first unit above!',
+                noPropertiesYet: 'No properties registered yet.',
+                confirmDelete: 'Are you sure you want to delete this?',
+                emailSent: '✅ Password reset link sent to your email!',
+                emailNotConfigured: '⚠️ Email notification not configured yet.',
+                emailNotificationSent: '✅ Email notification sent to tenant!',
+                emailFailed: '❌ Failed to send email: ',
+                noTenantEmail: '⚠️ No tenant email saved for this payment!',
+                noDataExport: '⚠️ No data to export! Please add payments first.',
+                pdfDownloaded: '✅ PDF report downloaded successfully!',
+                chartTitle: 'Monthly Income',
+                chartPaid: 'Paid', chartUnpaid: 'Unpaid',
+                emailSending: '⏳ Sending email notification...',
+                emailSuccess: '✅ Email notification sent!',
+                emailError: '❌ Email send failed: '
+            },
+            id: {
+                subtitle: 'Pengelolaan Properti & Penyewa yang Sederhana',
+                signIn: 'Masuk', register: 'Daftarkan Properti',
+                welcomeBack: 'Selamat Datang Kembali',
+                registerNew: 'Daftarkan Properti Baru',
+                forgotPassword: 'Lupa password? Reset di sini',
+                createAccount: 'Buat Akun',
+                emailPlaceholder: 'Alamat Email', passwordPlaceholder: 'Kata Sandi',
+                landlordName: 'Nama Lengkap Pemilik',
+                propertyName: 'Nama Properti (contoh: Apartemen Sunset)',
+                passwordMin: 'Kata Sandi (min 6 karakter)',
+                darkMode: 'Gelap',
+                totalIncome: '💰 Total Pendapatan (Dibayar)',
+                unpaidBills: '⏳ Tagihan Belum Dibayar',
+                availableUnits: '🟢 Unit Tersedia',
+                occupiedUnits: '🔴 Unit Terisi',
+                monthlyIncomeChart: '📊 Grafik Pendapatan Bulanan',
+                payments: 'Pembayaran', units: 'Unit',
+                recordPayment: 'Catat Pembayaran Sewa',
+                unitName: 'Nama Unit (contoh: Unit 101)',
+                tenantName: 'Nama Penyewa',
+                tenantEmail: 'Email Penyewa (untuk notifikasi)',
+                tenantPhone: 'WhatsApp Penyewa (contoh: 6281234567890)',
+                selectMonth: 'Pilih Bulan', selectYear: 'Pilih Tahun',
+                amount: 'Jumlah ($)', savePayment: 'Simpan Pembayaran',
+                filterPayments: 'Filter Pembayaran',
+                allMonths: 'Semua Bulan', allYears: 'Semua Tahun',
+                paymentHistory: 'Riwayat Pembayaran',
+                exportPDF: 'Ekspor Laporan Bulanan (PDF)',
+                addUnit: 'Tambah Unit Baru', monthlyRent: 'Sewa Bulanan ($)',
+                unitList: 'Daftar Unit', signOut: 'Keluar',
+                markUnpaid: 'Tandai Belum Dibayar', markPaid: 'Tandai Dibayar',
+                delete: 'Hapus', whatsapp: '💬 WhatsApp', sendEmail: '📧 Email',
+                allFieldsRequired: '⚠️ Semua kolom harus diisi!',
+                passwordMin6: '⚠️ Kata sandi minimal 6 karakter!',
+                creatingAccount: '⏳ Membuat akun...',
+                successRegister: '✅ Berhasil! Silakan masuk dengan akun baru Anda.',
+                enterEmailPassword: '⚠️ Masukkan email & kata sandi!',
+                processing: '⏳ Memproses...',
+                paymentSaved: '✅ Pembayaran berhasil dicatat!',
+                fillAllPayment: '⚠️ Isi: Nama Unit, Bulan, Tahun, dan Jumlah!',
+                noPaymentsFound: 'Tidak ada data pembayaran untuk filter ini.',
+                noUnitsYet: 'Belum ada unit. Tambahkan unit pertama Anda di atas!',
+                noPropertiesYet: 'Belum ada properti terdaftar.',
+                confirmDelete: 'Yakin ingin menghapus?',
+                emailSent: '✅ Link reset password dikirim ke email Anda!',
+                emailNotConfigured: '⚠️ Notifikasi email belum dikonfigurasi.',
+                emailNotificationSent: '✅ Notifikasi email terkirim ke penyewa!',
+                emailFailed: '❌ Gagal kirim email: ',
+                noTenantEmail: '⚠️ Tidak ada email penyewa untuk pembayaran ini!',
+                noDataExport: '⚠️ Tidak ada data untuk diekspor!',
+                pdfDownloaded: '✅ Laporan PDF berhasil diunduh!',
+                chartTitle: 'Pendapatan Bulanan',
+                chartPaid: 'Dibayar', chartUnpaid: 'Belum Dibayar',
+                emailSending: '⏳ Mengirim notifikasi email...',
+                emailSuccess: '✅ Notifikasi email terkirim!',
+                emailError: '❌ Gagal kirim email: '
+            }
+        };
+        
+        let currentLang = localStorage.getItem('rentdesk_lang') || 'en';
+        let isDark = localStorage.getItem('rentdesk_dark') === 'true';
+        
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+        
+        function setLang(lang, btn) {
+            currentLang = lang;
+            localStorage.setItem('rentdesk_lang', lang);
+            document.querySelectorAll('.top-controls .control-btn').forEach(b => {
+                if (b.textContent.includes('EN') || b.textContent.includes('ID')) {
+                    b.classList.remove('aktif');
+                }
+            });
+            if (btn) btn.classList.add('aktif');
+            applyTranslations();
+            if (incomeChartInstance) updateChart();
+            tampilkanKas();
+        }
+        
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
+        }
+        
+        function toggleDark() {
+            isDark = !isDark;
+            localStorage.setItem('rentdesk_dark', isDark);
+            document.body.classList.toggle('dark', isDark);
+            if (incomeChartInstance) updateChart();
+        }
+        
+        if (isDark) document.body.classList.add('dark');
 
         let currentUser = null;
         let propertyName = 'My Property';
+        let dataKas = [];
+        let dataProduk = [];
+        let incomeChartInstance = null;
 
         function dbT(path) {
             return db.ref('tenants/' + currentUser.tenantId + '/' + path);
@@ -257,16 +468,15 @@
             const pass = document.getElementById('daftar-pass').value.trim();
             const info = document.getElementById('daftar-info');
 
-            if (!nama || !toko || !email || !pass) { info.innerHTML = '⚠️ All fields are required!'; return; }
-            if (pass.length < 6) { info.innerHTML = '⚠️ Password must be at least 6 characters!'; return; }
+            if (!nama || !toko || !email || !pass) { info.innerHTML = t('allFieldsRequired'); return; }
+            if (pass.length < 6) { info.innerHTML = t('passwordMin6'); return; }
 
-            info.innerHTML = '⏳ Creating account...';
+            info.innerHTML = t('creatingAccount');
 
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(cred => {
                     const uid = cred.user.uid;
                     const tenantId = 'prop_' + uid.substring(0, 8);
-                    
                     const updates = {};
                     updates['users/' + uid] = {
                         email: email, nama: nama, role: 'owner', tenantId: tenantId
@@ -274,11 +484,10 @@
                     updates['tenants/' + tenantId + '/profile'] = {
                         nama: toko, pemilik: nama, dibuat: new Date().toISOString()
                     };
-                    
                     return db.ref().update(updates);
                 })
                 .then(() => {
-                    info.innerHTML = '✅ Success! Please sign in with your new account.';
+                    info.innerHTML = t('successRegister');
                     document.getElementById('daftar-nama').value = '';
                     document.getElementById('daftar-toko').value = '';
                     document.getElementById('daftar-email').value = '';
@@ -295,18 +504,18 @@
             const pass = document.getElementById('masuk-pass').value.trim();
             const info = document.getElementById('masuk-info');
 
-            if (!email || !pass) { info.innerHTML = '⚠️ Please enter email & password!'; return; }
-            info.innerHTML = '⏳ Processing...';
+            if (!email || !pass) { info.innerHTML = t('enterEmailPassword'); return; }
+            info.innerHTML = t('processing');
 
             auth.signInWithEmailAndPassword(email, pass)
                 .catch(err => { info.innerHTML = '❌ ' + err.message; });
         }
 
         function lupaPassword() {
-            const email = prompt('Enter your email address to reset password:');
+            const email = prompt(currentLang === 'id' ? 'Masukkan email Anda untuk reset password:' : 'Enter your email address to reset password:');
             if (!email) return;
             auth.sendPasswordResetEmail(email)
-                .then(() => alert('✅ Password reset link has been sent to your email!'))
+                .then(() => alert(t('emailSent')))
                 .catch(err => alert('❌ ' + err.message));
         }
 
@@ -337,8 +546,9 @@
                 const p = s.val() || {};
                 propertyName = p.nama || 'My Property';
                 document.getElementById('toko-judul').innerText = propertyName + " ☁️";
-                document.getElementById('toko-user').innerText = "Logged in as: " + currentUser.nama + " (ID: " + currentUser.tenantId + ")";
+                document.getElementById('toko-user').innerText = (currentLang === 'id' ? 'Masuk sebagai: ' : 'Logged in as: ') + currentUser.nama + " (ID: " + currentUser.tenantId + ")";
             });
+            applyTranslations();
             initKas();
             initProduk();
         }
@@ -349,9 +559,6 @@
             document.getElementById('panel-' + id).classList.add('aktif');
             el.classList.add('aktif');
         }
-
-        let dataKas = [];
-        let dataProduk = [];
         
         function initKas() {
             dbT('kas').on('value', snap => {
@@ -359,11 +566,14 @@
                 if (snap.exists()) snap.forEach(c => { const it = c.val(); it.id = c.key; dataKas.push(it); });
                 tampilkanKas();
                 updateDashboard();
+                updateChart();
             });
         }
         
         function simpanKas() {
             const unitName = document.getElementById('unit-name').value.trim();
+            const tenantName = document.getElementById('tenant-name').value.trim();
+            const tenantEmail = document.getElementById('tenant-email').value.trim();
             const phone = document.getElementById('tenant-phone').value.trim();
             const month = document.getElementById('payment-month').value;
             const year = document.getElementById('payment-year').value;
@@ -371,27 +581,56 @@
             const status = document.getElementById('payment-status').value;
             
             if (!unitName || !month || !year || !nom) { 
-                alert("Please fill in: Unit Name, Month, Year, and Amount!"); 
+                alert(t('fillAllPayment')); 
                 return; 
             }
             
             dbT('kas').push({ 
                 unitName: unitName,
+                tenantName: tenantName,
+                tenantEmail: tenantEmail,
                 tenantPhone: phone,
                 month: month,
                 year: year,
                 nominal: Number(nom), 
                 status: status,
                 tanggal: new Date().toLocaleString('en-US') 
+            }).then(() => {
+                if (tenantEmail) {
+                    kirimEmailNotifikasi(tenantEmail, tenantName || 'Tenant', unitName, month, year, nom, status);
+                }
             });
             
             document.getElementById('unit-name').value = '';
+            document.getElementById('tenant-name').value = '';
+            document.getElementById('tenant-email').value = '';
             document.getElementById('tenant-phone').value = '';
             document.getElementById('payment-month').value = '';
             document.getElementById('payment-year').value = '';
             document.getElementById('nom-kas').value = '';
             document.getElementById('payment-status').value = 'Paid';
-            alert('✅ Payment recorded successfully!');
+            alert(t('paymentSaved'));
+        }
+        
+        function kirimEmailNotifikasi(email, tenantName, unitName, month, year, amount, status) {
+            const templateParams = {
+                to_email: email,
+                tenant_name: tenantName,
+                property_name: propertyName,
+                unit_name: unitName,
+                month: month,
+                year: year,
+                amount: Number(amount).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                status: status
+            };
+            
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(() => {
+                    console.log('Email sent successfully');
+                })
+                .catch(err => {
+                    console.error('Email failed:', err);
+                });
         }
         
         function tampilkanKas() {
@@ -400,31 +639,30 @@
             const r = document.getElementById('riwayat-kas');
             
             let filteredData = dataKas;
-            if (filterMonth) {
-                filteredData = filteredData.filter(i => i.month === filterMonth);
-            }
-            if (filterYear) {
-                filteredData = filteredData.filter(i => i.year === filterYear);
-            }
+            if (filterMonth) filteredData = filteredData.filter(i => i.month === filterMonth);
+            if (filterYear) filteredData = filteredData.filter(i => i.year === filterYear);
             
             if (!filteredData.length) { 
-                r.innerHTML = 'No payment records found for this filter.'; 
+                r.innerHTML = t('noPaymentsFound'); 
                 return; 
             }
             
             r.innerHTML = filteredData.map(i => {
                 const statusClass = i.status === 'Paid' ? 'status-paid' : 'status-unpaid';
-                const toggleBtnText = i.status === 'Paid' ? 'Mark Unpaid' : 'Mark Paid';
+                const toggleBtnText = i.status === 'Paid' ? t('markUnpaid') : t('markPaid');
                 const toggleBtnClass = i.status === 'Paid' ? 'btn-warning' : 'btn-success';
                 const waBtn = i.tenantPhone ? 
-                    '<button class="btn btn-sm btn-whatsapp" onclick="kirimWA(\'' + i.id + '\')">💬 WhatsApp</button>' : '';
+                    '<button class="btn btn-sm btn-whatsapp" onclick="kirimWA(\'' + i.id + '\')">' + t('whatsapp') + '</button>' : '';
+                const emailBtn = i.tenantEmail ? 
+                    '<button class="btn btn-sm btn-email" onclick="kirimEmailManual(\'' + i.id + '\')">' + t('sendEmail') + '</button>' : '';
                 
                 return '<div class="item-list"><b>' + i.unitName + '</b><br>' +
+                       (i.tenantName ? i.tenantName + '<br>' : '') +
                        i.month + ' ' + i.year + ' - $' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}) + '<br>' +
                        '<span class="status-badge ' + statusClass + '">' + i.status + '</span><br>' +
                        '<button class="btn btn-sm ' + toggleBtnClass + '" onclick="toggleStatusKas(\'' + i.id + '\', \'' + i.status + '\')">' + toggleBtnText + '</button>' +
-                       waBtn +
-                       '<button class="btn btn-sm btn-danger" onclick="hapusKas(\'' + i.id + '\')">Delete</button></div>';
+                       waBtn + emailBtn +
+                       '<button class="btn btn-sm btn-danger" onclick="hapusKas(\'' + i.id + '\')">' + t('delete') + '</button></div>';
             }).join('');
         }
         
@@ -433,15 +671,14 @@
             dbT('kas/' + id).update({ status: newStatus });
         }
         
-        function hapusKas(id) { if (confirm("Are you sure you want to delete this payment?")) dbT('kas/' + id).remove(); }
+        function hapusKas(id) { if (confirm(t('confirmDelete'))) dbT('kas/' + id).remove(); }
 
         function kirimWA(id) {
             const payment = dataKas.find(p => p.id === id);
             if (!payment || !payment.tenantPhone) {
-                alert("⚠️ No WhatsApp number saved for this payment!");
+                alert(t('noTenantEmail'));
                 return;
             }
-            
             const phone = payment.tenantPhone.replace(/[^0-9]/g, '');
             const message = `Hello!%0A%0AThis is a rent payment reminder from *${propertyName}*:%0A%0A` +
                            `📍 Unit: *${payment.unitName}*%0A` +
@@ -449,12 +686,28 @@
                            `💰 Amount: *$${Number(payment.nominal).toLocaleString('en-US', {minimumFractionDigits: 2})}*%0A` +
                            `📊 Status: *${payment.status}*%0A%0A` +
                            `Thank you! 🙏`;
-            
-            const waURL = `https://wa.me/${phone}?text=${message}`;
-            window.open(waURL, '_blank');
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+        }
+        
+        function kirimEmailManual(id) {
+            const payment = dataKas.find(p => p.id === id);
+            if (!payment || !payment.tenantEmail) {
+                alert(t('noTenantEmail'));
+                return;
+            }
+            alert(t('emailSending'));
+            kirimEmailNotifikasi(
+                payment.tenantEmail,
+                payment.tenantName || 'Tenant',
+                payment.unitName,
+                payment.month,
+                payment.year,
+                payment.nominal,
+                payment.status
+            );
+            setTimeout(() => alert(t('emailSuccess')), 1500);
         }
 
-        // ✅ FITUR EXPORT PDF - MENGGUNAKAN jsPDF + AutoTable (PASTI JALAN DI HP!)
         function exportPDF() {
             const filterMonth = document.getElementById('filter-month').value;
             const filterYear = document.getElementById('filter-year').value;
@@ -464,15 +717,13 @@
             if (filterYear) filteredData = filteredData.filter(i => i.year === filterYear);
             
             if (!filteredData.length) {
-                alert("⚠️ No data to export! Please add payments first.");
+                alert(t('noDataExport'));
                 return;
             }
             
-            // Akses jsPDF dari window (karena di-load via CDN)
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // Header
             doc.setFontSize(20);
             doc.setTextColor(2, 132, 199);
             doc.text('RentDesk - Monthly Report', 14, 20);
@@ -486,25 +737,16 @@
                                filterYear ? 'All Months ' + filterYear : 'All Time';
             doc.text('Period: ' + periodText, 14, 37);
             
-            // Siapkan data tabel
             let totalPaid = 0, totalUnpaid = 0;
             const tableData = filteredData.map(i => {
                 if (i.status === 'Paid') totalPaid += Number(i.nominal);
                 else totalUnpaid += Number(i.nominal);
-                
-                return [
-                    i.unitName,
-                    i.month + ' ' + i.year,
-                    '$' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}),
-                    i.status
-                ];
+                return [i.unitName, i.month + ' ' + i.year, '$' + Number(i.nominal).toLocaleString('en-US', {minimumFractionDigits: 2}), i.status];
             });
             
-            // Tambah baris total
             tableData.push(['', 'TOTAL PAID', '$' + totalPaid.toLocaleString('en-US', {minimumFractionDigits: 2}), '']);
             tableData.push(['', 'TOTAL UNPAID', '$' + totalUnpaid.toLocaleString('en-US', {minimumFractionDigits: 2}), '']);
             
-            // Gambar tabel dengan AutoTable
             doc.autoTable({
                 startY: 45,
                 head: [['Unit', 'Period', 'Amount', 'Status']],
@@ -512,7 +754,6 @@
                 theme: 'grid',
                 headStyles: { fillColor: [2, 132, 199], textColor: 255, fontStyle: 'bold' },
                 styles: { fontSize: 10, cellPadding: 3 },
-                // Warna baris total
                 didParseCell: function(data) {
                     if (data.row.index >= tableData.length - 2) {
                         data.cell.styles.fontStyle = 'bold';
@@ -521,7 +762,6 @@
                 }
             });
             
-            // Footer
             const pageCount = doc.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
@@ -533,11 +773,8 @@
                          { align: 'center' });
             }
             
-            // Download
-            const filename = 'RentDesk-Report-' + (filterMonth || 'All') + '-' + (filterYear || 'All') + '.pdf';
-            doc.save(filename);
-            
-            alert('✅ PDF report downloaded successfully!');
+            doc.save('RentDesk-Report-' + (filterMonth || 'All') + '-' + (filterYear || 'All') + '.pdf');
+            alert(t('pdfDownloaded'));
         }
 
         function updateDashboard() {
@@ -546,37 +783,66 @@
                 if (i.status === 'Paid') totalIncome += Number(i.nominal);
                 else totalUnpaid += Number(i.nominal);
             });
-            
             let available = 0, occupied = 0;
             dataProduk.forEach(p => {
                 if (p.status === 'Available') available++;
                 else occupied++;
             });
-            
             document.getElementById('stat-income').innerText = '$' + totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2});
             document.getElementById('stat-unpaid').innerText = '$' + totalUnpaid.toLocaleString('en-US', {minimumFractionDigits: 2});
             document.getElementById('stat-available').innerText = available;
             document.getElementById('stat-occupied').innerText = occupied;
         }
 
+        function updateChart() {
+            const ctx = document.getElementById('incomeChart');
+            if (!ctx) return;
+            const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const monthlyData = {};
+            monthOrder.forEach(m => { monthlyData[m] = { paid: 0, unpaid: 0 }; });
+            dataKas.forEach(i => {
+                if (monthlyData[i.month]) {
+                    if (i.status === 'Paid') monthlyData[i.month].paid += Number(i.nominal);
+                    else monthlyData[i.month].unpaid += Number(i.nominal);
+                }
+            });
+            const labels = monthOrder.filter(m => monthlyData[m].paid > 0 || monthlyData[m].unpaid > 0);
+            const paidData = labels.map(m => monthlyData[m].paid);
+            const unpaidData = labels.map(m => monthlyData[m].unpaid);
+            if (incomeChartInstance) incomeChartInstance.destroy();
+            const isDarkMode = document.body.classList.contains('dark');
+            const textColor = isDarkMode ? '#e2e8f0' : '#334155';
+            incomeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length ? labels : ['No Data'],
+                    datasets: [
+                        { label: t('chartPaid'), data: paidData.length ? paidData : [0], backgroundColor: '#16a34a', borderRadius: 4 },
+                        { label: t('chartUnpaid'), data: unpaidData.length ? unpaidData : [0], backgroundColor: '#dc2626', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: isDarkMode ? '#475569' : '#e2e8f0' } },
+                        y: { ticks: { color: textColor, callback: v => '$' + v }, grid: { color: isDarkMode ? '#475569' : '#e2e8f0' } }
+                    }
+                }
+            });
+        }
+
         function tambahUnit() {
             const nama = document.getElementById('unit-nama').value.trim();
             const harga = document.getElementById('unit-harga').value;
             const status = document.getElementById('unit-status').value;
-            
-            if (!nama || !harga) { alert("Please fill in unit name and rent amount!"); return; }
-            
-            dbT('products').push({
-                nama: nama,
-                harga: Number(harga),
-                status: status,
-                dibuat: new Date().toISOString()
-            });
-            
+            if (!nama || !harga) { alert(currentLang === 'id' ? 'Isi nama unit dan harga sewa!' : 'Please fill in unit name and rent amount!'); return; }
+            dbT('products').push({ nama: nama, harga: Number(harga), status: status, dibuat: new Date().toISOString() });
             document.getElementById('unit-nama').value = '';
             document.getElementById('unit-harga').value = '';
             document.getElementById('unit-status').value = 'Available';
-            alert('✅ Unit added successfully!');
+            alert(currentLang === 'id' ? '✅ Unit berhasil ditambahkan!' : '✅ Unit added successfully!');
         }
 
         function toggleStatusUnit(id, currentStatus) {
@@ -585,32 +851,29 @@
         }
 
         function hapusUnit(id) {
-            if (confirm("Are you sure you want to delete this unit?")) {
-                dbT('products/' + id).remove();
-            }
+            if (confirm(t('confirmDelete'))) dbT('products/' + id).remove();
         }
 
         function initProduk() {
             dbT('products').on('value', snap => {
                 dataProduk = [];
                 const r = document.getElementById('riwayat-produk');
-                if (!snap.exists()) { r.innerHTML = 'No units added yet. Add your first unit above!'; updateDashboard(); return; }
+                if (!snap.exists()) { r.innerHTML = t('noUnitsYet'); updateDashboard(); updateChart(); return; }
                 let html = '';
                 snap.forEach(c => { 
                     const p = c.val(); p.id = c.key; dataProduk.push(p);
                     const statusClass = p.status === 'Available' ? 'status-available' : 'status-occupied';
-                    const toggleBtnText = p.status === 'Available' ? 'Mark Occupied' : 'Mark Available';
+                    const toggleBtnText = p.status === 'Available' ? (currentLang === 'id' ? 'Tandai Terisi' : 'Mark Occupied') : (currentLang === 'id' ? 'Tandai Tersedia' : 'Mark Available');
                     const toggleBtnClass = p.status === 'Available' ? 'btn-warning' : 'btn-success';
-                    
                     html += '<div class="item-list"><b>' + p.nama + '</b><br>' +
-                            'Rent: $' + Number(p.harga).toLocaleString('en-US', {minimumFractionDigits: 2}) + '/month<br>' +
+                            (currentLang === 'id' ? 'Sewa: ' : 'Rent: ') + '$' + Number(p.harga).toLocaleString('en-US', {minimumFractionDigits: 2}) + '/month<br>' +
                             '<span class="status-badge ' + statusClass + '">' + p.status + '</span><br>' +
                             '<button class="btn btn-sm ' + toggleBtnClass + '" onclick="toggleStatusUnit(\'' + c.key + '\', \'' + p.status + '\')">' + toggleBtnText + '</button>' +
-                            '<button class="btn btn-sm btn-danger" onclick="hapusUnit(\'' + c.key + '\')">Delete</button>' +
-                            '</div>';
+                            '<button class="btn btn-sm btn-danger" onclick="hapusUnit(\'' + c.key + '\')">' + t('delete') + '</button></div>';
                 });
                 r.innerHTML = html;
                 updateDashboard();
+                updateChart();
             });
         }
 
@@ -619,15 +882,13 @@
             document.getElementById('view-pusat').classList.remove('hidden');
             db.ref('tenants').once('value').then(snap => {
                 const r = document.getElementById('daftar-tenant');
-                if (!snap.exists()) { r.innerHTML = 'No properties registered yet.'; return; }
+                if (!snap.exists()) { r.innerHTML = t('noPropertiesYet'); return; }
                 let html = '', jumlah = 0;
                 snap.forEach(c => {
                     const t = c.val(); jumlah++;
                     const prof = t.profile || {};
                     const nProd = t.products ? Object.keys(t.products).length : 0;
-                    html += '<div class="item-list"><b>' + (prof.nama || c.key) + '</b><br>' +
-                            'ID: <code>' + c.key + '</code><br>' +
-                            'Landlord: ' + (prof.pemilik || '-') + '<br>Total Units: ' + nProd + '</div>';
+                    html += '<div class="item-list"><b>' + (prof.nama || c.key) + '</b><br>ID: <code>' + c.key + '</code><br>Landlord: ' + (prof.pemilik || '-') + '<br>Total Units: ' + nProd + '</div>';
                 });
                 r.innerHTML = '<div class="info">Total Properties: <b>' + jumlah + '</b></div>' + html;
             });
