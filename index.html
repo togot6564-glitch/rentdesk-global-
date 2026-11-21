@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RentDesk - Login</title>
+  <title>RentDesk - Property & Tenant Management</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -17,63 +17,95 @@
     }
     .container {
       background: white;
-      padding: 40px;
+      padding: 30px;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       width: 100%;
       max-width: 400px;
+      position: relative;
+    }
+    .lang-toggle {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 5px;
+    }
+    .lang-btn {
+      padding: 6px 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .lang-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
     }
     h1 {
       color: #333;
       text-align: center;
       margin-bottom: 10px;
+      font-size: 28px;
     }
     .subtitle {
       color: #666;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       font-size: 14px;
     }
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: #333;
       font-weight: 500;
+      font-size: 14px;
     }
     input {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       border: 2px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
-      transition: border 0.3s;
     }
     input:focus {
       outline: none;
       border-color: #667eea;
     }
-    button {
-      width: 100%;
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1;
       padding: 14px;
-      background: #667eea;
-      color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s;
     }
-    button:hover { background: #5568d3; }
-    button:disabled {
-      background: #ccc;
+    .btn-masuk {
+      background: #667eea;
+      color: white;
+    }
+    .btn-daftar {
+      background: #10b981;
+      color: white;
+    }
+    .btn:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
     }
     .message {
       padding: 12px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-size: 14px;
       display: none;
     }
@@ -89,187 +121,233 @@
       border: 1px solid #cfc;
       display: block;
     }
-    .switch-mode {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #666;
-    }
-    .switch-mode a {
-      color: #667eea;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .switch-mode a:hover { text-decoration: underline; }
-    .dashboard {
-      display: none;
-      text-align: center;
-    }
-    .dashboard h2 { color: #333; margin-bottom: 20px; }
+    .dashboard { display: none; text-align: center; }
+    .dashboard h2 { color: #333; margin-bottom: 15px; }
     .user-info {
       background: #f5f5f5;
       padding: 15px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       word-break: break-all;
     }
     .logout-btn {
       background: #e74c3c;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
     }
-    .logout-btn:hover { background: #c0392b; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- FORM LOGIN/DAFTAR -->
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btnID" onclick="setLang('id')">ID</button>
+    </div>
+    
     <div id="authForm">
       <h1>🏠 RentDesk</h1>
-      <p class="subtitle">Pengelolaan Properti & Penyewa</p>
+      <p class="subtitle" id="subtitle">Property & Tenant Management</p>
       
       <div id="message" class="message"></div>
       
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="nama@email.com">
+        <label for="email" id="labelEmail">Email</label>
+        <input type="email" id="email" placeholder="name@email.com">
       </div>
       
       <div class="form-group">
-        <label for="password">Kata Sandi</label>
-        <input type="password" id="password" placeholder="Minimal 6 karakter">
+        <label for="password" id="labelPassword">Password</label>
+        <input type="password" id="password" placeholder="Minimum 6 characters">
       </div>
       
-      <button id="submitBtn" onclick="handleAuth()">Masuk</button>
-      
-      <div class="switch-mode">
-        <span id="switchText">Belum punya akun?</span>
-        <a onclick="toggleMode()" id="switchLink">Daftar di sini</a>
+      <div class="button-row">
+        <button class="btn btn-masuk" id="btnMasuk" onclick="handleLogin()">Sign In</button>
+        <button class="btn btn-daftar" id="btnDaftar" onclick="handleDaftar()">Sign Up</button>
       </div>
     </div>
     
-    <!-- DASHBOARD SETELAH LOGIN -->
     <div id="dashboard" class="dashboard">
-      <h2>✅ Berhasil Login!</h2>
+      <h2 id="dashTitle">✅ Login Successful!</h2>
       <div class="user-info">
-        <strong>Email Anda:</strong><br>
+        <strong id="dashEmailLabel">Your Email:</strong><br>
         <span id="userEmail"></span>
       </div>
-      <p style="color: #666; margin-bottom: 20px;">
-        Selamat datang di RentDesk. Fitur dashboard akan segera ditambahkan!
+      <p style="color: #666; margin-bottom: 20px;" id="dashWelcome">
+        Welcome to RentDesk. Dashboard features coming soon!
       </p>
-      <button class="logout-btn" onclick="handleLogout()">Keluar</button>
+      <button class="logout-btn" id="btnLogout" onclick="handleLogout()">Sign Out</button>
     </div>
   </div>
 
-  <!-- SUPABASE VIA CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <script>
-    // ===== KONFIGURASI SUPABASE =====
     const SUPABASE_URL = 'https://rtychlvtoirxsrakxdya.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_QZbMPa5m-FC53xD0De4O6A_nnm_WywL';
     
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    let isLoginMode = true;
+    // ===== TRANSLATIONS =====
+    const translations = {
+      en: {
+        subtitle: 'Property & Tenant Management',
+        labelEmail: 'Email',
+        labelPassword: 'Password',
+        btnMasuk: 'Sign In',
+        btnDaftar: 'Sign Up',
+        dashTitle: '✅ Login Successful!',
+        dashEmailLabel: 'Your Email:',
+        dashWelcome: 'Welcome to RentDesk. Dashboard features coming soon!',
+        btnLogout: 'Sign Out',
+        processing: 'Processing...',
+        signingUp: 'Signing up...',
+        required: '❌ Email and password are required',
+        minPass: '❌ Password must be at least 6 characters',
+        signupSuccess: '✅ Account created! Please sign in.',
+        logoutSuccess: 'You have been signed out.'
+      },
+      id: {
+        subtitle: 'Pengelolaan Properti & Penyewa',
+        labelEmail: 'Email',
+        labelPassword: 'Kata Sandi',
+        btnMasuk: 'Masuk',
+        btnDaftar: 'Daftar',
+        dashTitle: '✅ Berhasil Login!',
+        dashEmailLabel: 'Email Anda:',
+        dashWelcome: 'Selamat datang di RentDesk. Fitur dashboard segera hadir!',
+        btnLogout: 'Keluar',
+        processing: 'Memproses...',
+        signingUp: 'Mendaftar...',
+        required: '❌ Email dan kata sandi wajib diisi',
+        minPass: '❌ Kata sandi minimal 6 karakter',
+        signupSuccess: '✅ Akun berhasil dibuat! Silakan masuk.',
+        logoutSuccess: 'Anda telah keluar.'
+      }
+    };
     
-    // ===== CEK STATUS LOGIN SAAT HALAMAN DIBUKA =====
+    let currentLang = 'en';
+    
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('labelEmail').textContent = t.labelEmail;
+      document.getElementById('labelPassword').textContent = t.labelPassword;
+      document.getElementById('btnMasuk').textContent = t.btnMasuk;
+      document.getElementById('btnDaftar').textContent = t.btnDaftar;
+      document.getElementById('dashTitle').textContent = t.dashTitle;
+      document.getElementById('dashEmailLabel').textContent = t.dashEmailLabel;
+      document.getElementById('dashWelcome').textContent = t.dashWelcome;
+      document.getElementById('btnLogout').textContent = t.btnLogout;
+      
+      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+      document.getElementById('btnID').classList.toggle('active', lang === 'id');
+      
+      // Update placeholder
+      document.getElementById('password').placeholder = lang === 'en' ? 'Minimum 6 characters' : 'Minimal 6 karakter';
+      document.getElementById('email').placeholder = lang === 'en' ? 'name@email.com' : 'nama@email.com';
+    }
+    
     async function checkSession() {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        showDashboard(session.user.email);
-      }
+      if (session) showDashboard(session.user.email);
     }
     
-    // ===== HANDLE LOGIN / DAFTAR =====
-    async function handleAuth() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const btn = document.getElementById('submitBtn');
-      const msg = document.getElementById('message');
-      
-      // Validasi
-      if (!email || !password) {
-        showMessage('Email dan kata sandi wajib diisi', 'error');
-        return;
-      }
-      if (password.length < 6) {
-        showMessage('Kata sandi minimal 6 karakter', 'error');
-        return;
-      }
-      
-      btn.disabled = true;
-      btn.textContent = isLoginMode ? 'Memproses...' : 'Mendaftarkan...';
-      msg.className = 'message';
-      
-      try {
-        if (isLoginMode) {
-          // MODE LOGIN
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email, password
-          });
-          if (error) throw error;
-          showDashboard(data.user.email);
-          showMessage('Login berhasil!', 'success');
-        } else {
-          // MODE DAFTAR
-          const { data, error } = await supabase.auth.signUp({
-            email, password
-          });
-          if (error) throw error;
-          showMessage('✅ Akun berhasil dibuat! Silakan cek email untuk verifikasi, lalu login.', 'success');
-          setTimeout(() => toggleMode(), 2000);
-        }
-      } catch (error) {
-        showMessage('❌ ' + error.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = isLoginMode ? 'Masuk' : 'Daftar';
-      }
-    }
-    
-    // ===== LOGOUT =====
-    async function handleLogout() {
-      await supabase.auth.signOut();
-      document.getElementById('dashboard').style.display = 'none';
-      document.getElementById('authForm').style.display = 'block';
-      document.getElementById('email').value = '';
-      document.getElementById('password').value = '';
-    }
-    
-    // ===== TOGGLE LOGIN / DAFTAR =====
-    function toggleMode() {
-      isLoginMode = !isLoginMode;
-      const btn = document.getElementById('submitBtn');
-      const switchText = document.getElementById('switchText');
-      const switchLink = document.getElementById('switchLink');
-      
-      if (isLoginMode) {
-        btn.textContent = 'Masuk';
-        switchText.textContent = 'Belum punya akun?';
-        switchLink.textContent = 'Daftar di sini';
-      } else {
-        btn.textContent = 'Daftar';
-        switchText.textContent = 'Sudah punya akun?';
-        switchLink.textContent = 'Masuk di sini';
-      }
-      document.getElementById('message').className = 'message';
-    }
-    
-    // ===== TAMPILKAN DASHBOARD =====
-    function showDashboard(email) {
-      document.getElementById('authForm').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userEmail').textContent = email;
-    }
-    
-    // ===== TAMPILKAN PESAN =====
     function showMessage(text, type) {
       const msg = document.getElementById('message');
       msg.textContent = text;
       msg.className = 'message ' + type;
     }
     
-    // ===== JALANKAN SAAT HALAMAN LOAD =====
+    function clearMessage() {
+      document.getElementById('message').className = 'message';
+    }
+    
+    async function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btnMasuk');
+      const t = translations[currentLang];
+      
+      if (!email || !password) {
+        showMessage(t.required, 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = t.processing;
+      clearMessage();
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showDashboard(data.user.email);
+      } catch (error) {
+        showMessage('❌ ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t.btnMasuk;
+      }
+    }
+    
+    async function handleDaftar() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btnDaftar');
+      const t = translations[currentLang];
+      
+      if (!email || !password) {
+        showMessage(t.required, 'error');
+        return;
+      }
+      if (password.length < 6) {
+        showMessage(t.minPass, 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = t.signingUp;
+      clearMessage();
+      
+      try {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        
+        if (data.user && !data.session) {
+          showMessage(t.signupSuccess, 'success');
+        } else {
+          showDashboard(data.user.email);
+        }
+      } catch (error) {
+        showMessage('❌ ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t.btnDaftar;
+      }
+    }
+    
+    async function handleLogout() {
+      await supabase.auth.signOut();
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('authForm').style.display = 'block';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      clearMessage();
+    }
+    
+    function showDashboard(email) {
+      document.getElementById('authForm').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('userEmail').textContent = email;
+    }
+    
     checkSession();
   </script>
 </body>
