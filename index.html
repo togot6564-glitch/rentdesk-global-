@@ -10,149 +10,158 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
     }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      width: 100%;
-      max-width: 400px;
-      position: relative;
+    .card {
+      background: white; padding: 30px; border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%;
+      max-width: 400px; margin: 0 auto; position: relative;
     }
-    .lang-toggle {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      display: flex;
-      gap: 5px;
-    }
+    .lang-toggle { position: absolute; top: 15px; right: 15px; display: flex; gap: 5px; }
     .lang-btn {
-      padding: 6px 12px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      background: white;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
+      padding: 6px 12px; border: 2px solid #ddd; border-radius: 6px;
+      background: white; cursor: pointer; font-size: 13px; font-weight: 600;
     }
-    .lang-btn.active {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-    h1 { color: #333; text-align: center; margin-bottom: 10px; font-size: 28px; }
-    .subtitle { color: #666; text-align: center; margin-bottom: 25px; font-size: 14px; }
+    .lang-btn.active { background: #667eea; color: white; border-color: #667eea; }
+    h1 { color: #333; text-align: center; margin-bottom: 8px; font-size: 26px; }
+    .subtitle { color: #666; text-align: center; margin-bottom: 20px; font-size: 14px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 14px; }
-    input {
-      width: 100%;
-      padding: 14px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
+    input, select {
+      width: 100%; padding: 12px; border: 2px solid #ddd;
+      border-radius: 8px; font-size: 16px; background: white;
     }
-    input:focus { outline: none; border-color: #667eea; }
+    input:focus, select:focus { outline: none; border-color: #667eea; }
     .button-row { display: flex; gap: 10px; margin-top: 20px; }
     .btn {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      flex: 1; padding: 14px; border: none; border-radius: 8px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
     }
-    .btn:active { transform: scale(0.95); }
-    .btn-masuk { background: #667eea; color: white; }
-    .btn-daftar { background: #10b981; color: white; }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-ghost { background: #eee; color: #333; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .message { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: none; }
     .message.error { background: #fee; color: #c33; border: 1px solid #fcc; display: block; }
     .message.success { background: #efe; color: #3c3; border: 1px solid #cfc; display: block; }
-    .dashboard { display: none; text-align: center; }
-    .dashboard h2 { color: #333; margin-bottom: 15px; }
-    .user-info { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; word-break: break-all; }
-    .logout-btn {
-      background: #e74c3c;
-      color: white;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
+    #dashboard { display: none; max-width: 700px; margin: 0 auto; }
+    .topbar {
+      background: white; border-radius: 12px; padding: 15px 20px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15); margin-bottom: 20px;
     }
-    .status-bar {
-      background: #d4edda;
-      border: 1px solid #28a745;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-size: 13px;
-      color: #155724;
+    .topbar .brand { font-weight: 700; font-size: 18px; color: #333; }
+    .topbar .who { font-size: 12px; color: #888; word-break: break-all; flex: 1; min-width: 140px; }
+    .add-btn {
+      background: #10b981; color: white; border: none; border-radius: 10px;
+      padding: 14px 18px; font-size: 16px; font-weight: 700; cursor: pointer;
+      width: 100%; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(16,185,129,0.4);
     }
+    .empty {
+      background: rgba(255,255,255,0.9); border-radius: 12px; padding: 30px;
+      text-align: center; color: #777; font-size: 15px;
+    }
+    .prop-card {
+      background: white; border-radius: 12px; padding: 18px;
+      margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    }
+    .prop-card h3 { color: #333; font-size: 18px; margin-bottom: 6px; }
+    .prop-card .addr { color: #777; font-size: 14px; margin-bottom: 10px; }
+    .prop-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .price { color: #667eea; font-weight: 700; font-size: 17px; }
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge.available { background: #d1fae5; color: #065f46; }
+    .badge.rented { background: #fee2e2; color: #991b1b; }
+    .prop-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .prop-actions .btn { padding: 8px 14px; font-size: 14px; }
+    .modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 100; align-items: flex-end; justify-content: center;
+    }
+    .modal.open { display: flex; }
+    .modal-box {
+      background: white; width: 100%; max-width: 480px;
+      border-radius: 16px 16px 0 0; padding: 25px;
+      max-height: 85vh; overflow-y: auto;
+    }
+    @media (min-width: 600px) {
+      .modal { align-items: center; }
+      .modal-box { border-radius: 16px; }
+    }
+    .modal-box h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="card" id="authForm">
     <div class="lang-toggle">
       <button class="lang-btn active" id="btnEN">EN</button>
       <button class="lang-btn" id="btnID">ID</button>
     </div>
-
-    <div id="authForm">
-      <h1>🏠 RentDesk</h1>
-      <p class="subtitle" id="subtitle">Property & Tenant Management</p>
-
-      <div id="statusBar" class="status-bar">✅ Firebase connected</div>
-      <div id="message" class="message"></div>
-
-      <div class="form-group">
-        <label for="email" id="labelEmail">Email</label>
-        <input type="email" id="email" placeholder="name@email.com">
-      </div>
-
-      <div class="form-group">
-        <label for="password" id="labelPassword">Password</label>
-        <input type="password" id="password" placeholder="Minimum 6 characters">
-      </div>
-
-      <div class="button-row">
-        <button class="btn btn-masuk" id="btnMasuk">Sign In</button>
-        <button class="btn btn-daftar" id="btnDaftar">Sign Up</button>
-      </div>
+    <h1>🏠 RentDesk</h1>
+    <p class="subtitle" id="subtitle">Property & Tenant Management</p>
+    <div id="message" class="message"></div>
+    <div class="form-group">
+      <label for="email" id="labelEmail">Email</label>
+      <input type="email" id="email" placeholder="name@email.com">
     </div>
-
-    <div id="dashboard" class="dashboard">
-      <h2 id="dashTitle">✅ Login Successful!</h2>
-      <div class="user-info">
-        <strong id="dashEmailLabel">Your Email:</strong><br>
-        <span id="userEmail"></span>
-      </div>
-      <p style="color: #666; margin-bottom: 20px;" id="dashWelcome">
-        Welcome to RentDesk. Dashboard features coming soon!
-      </p>
-      <button class="logout-btn" id="btnLogout">Sign Out</button>
+    <div class="form-group">
+      <label for="password" id="labelPassword">Password</label>
+      <input type="password" id="password" placeholder="Minimum 6 characters">
+    </div>
+    <div class="button-row">
+      <button class="btn btn-primary" id="btnMasuk">Sign In</button>
+      <button class="btn btn-success" id="btnDaftar">Sign Up</button>
     </div>
   </div>
-
+  <div id="dashboard">
+    <div class="topbar">
+      <span class="brand">🏠 RentDesk</span>
+      <span class="who" id="dashEmail"></span>
+      <div class="lang-toggle" style="position:static;">
+        <button class="lang-btn active" id="btnEN2">EN</button>
+        <button class="lang-btn" id="btnID2">ID</button>
+      </div>
+      <button class="btn btn-danger" id="btnLogout" style="flex:0;padding:8px 14px;font-size:13px;">Sign Out</button>
+    </div>
+    <button class="add-btn" id="btnAdd">➕ Add Property</button>
+    <div id="propList"></div>
+  </div>
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <h2 id="modalTitle">Add Property</h2>
+      <div id="modalMsg" class="message"></div>
+      <div class="form-group">
+        <label for="pName" id="labelName">Property Name</label>
+        <input type="text" id="pName" placeholder="e.g. kos-kosan melati">
+      </div>
+      <div class="form-group">
+        <label for="pAddr" id="labelAddr">Address</label>
+        <input type="text" id="pAddr" placeholder="Street, city">
+      </div>
+      <div class="form-group">
+        <label for="pPrice" id="labelPrice">Monthly Rent (Rp)</label>
+        <input type="number" id="pPrice" placeholder="1500000" min="0">
+      </div>
+      <div class="form-group">
+        <label for="pStatus" id="labelStatus">Status</label>
+        <select id="pStatus">
+          <option value="available" id="optAvailable">Available</option>
+          <option value="rented" id="optRented">Rented</option>
+        </select>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-ghost" id="btnCancel">Cancel</button>
+        <button class="btn btn-success" id="btnSave">Save</button>
+      </div>
+    </div>
+  </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const firebaseConfig = {
       apiKey: "AIzaSyAUnYXGF6n2G8-a4x3m3vDFOtkwGGTQa_0",
       authDomain: "rentdesk-manager.firebaseapp.com",
@@ -162,126 +171,162 @@
       appId: "1:216408702650:web:75363154e03b95b36ccc83",
       measurementId: "G-NXJKHYD59V"
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
+    const db = getFirestore(app);
     const translations = {
-      en: {
-        subtitle: 'Property & Tenant Management',
-        labelEmail: 'Email', labelPassword: 'Password',
-        btnMasuk: 'Sign In', btnDaftar: 'Sign Up',
-        dashTitle: '✅ Login Successful!', dashEmailLabel: 'Your Email:',
-        dashWelcome: 'Welcome to RentDesk. Dashboard features coming soon!',
-        btnLogout: 'Sign Out', processing: 'Processing...', signingUp: 'Signing up...',
-        required: '❌ Email and password are required',
-        minPass: '❌ Password must be at least 6 characters',
-        signupSuccess: '✅ Account created! Welcome!',
-        dbReady: '✅ Firebase connected', dbError: '❌ Firebase failed to load'
-      },
-      id: {
-        subtitle: 'Pengelolaan Properti & Penyewa',
-        labelEmail: 'Email', labelPassword: 'Kata Sandi',
-        btnMasuk: 'Masuk', btnDaftar: 'Daftar',
-        dashTitle: '✅ Berhasil Login!', dashEmailLabel: 'Email Anda:',
-        dashWelcome: 'Selamat datang di RentDesk. Fitur dashboard segera hadir!',
-        btnLogout: 'Keluar', processing: 'Memproses...', signingUp: 'Mendaftar...',
-        required: '❌ Email dan kata sandi wajib diisi',
-        minPass: '❌ Kata sandi minimal 6 karakter',
-        signupSuccess: '✅ Akun berhasil dibuat! Selamat datang!',
-        dbReady: '✅ Firebase terhubung', dbError: '❌ Firebase gagal dimuat'
-      }
+      en: { subtitle: 'Property & Tenant Management', labelEmail: 'Email', labelPassword: 'Password',
+        btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnAdd: '➕ Add Property',
+        empty: '📭 No properties yet.\nTap "Add Property" to create your first one.',
+        modalAdd: 'Add Property', modalEdit: 'Edit Property',
+        labelName: 'Property Name', labelAddr: 'Address', labelPrice: 'Monthly Rent (Rp)', labelStatus: 'Status',
+        optAvailable: 'Available', optRented: 'Rented', btnCancel: 'Cancel', btnSave: 'Save',
+        required: '❌ Email and password are required', minPass: '❌ Password must be at least 6 characters',
+        signupSuccess: '✅ Account created! Welcome!', fillAll: '❌ Please fill name, address and price',
+        saved: '✅ Saved!', delConfirm: 'Delete this property?', avail: 'Available', rented: 'Rented' },
+      id: { subtitle: 'Pengelolaan Properti & Penyewa', labelEmail: 'Email', labelPassword: 'Kata Sandi',
+        btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnAdd: '➕ Tambah Properti',
+        empty: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
+        modalAdd: 'Tambah Properti', modalEdit: 'Edit Properti',
+        labelName: 'Nama Properti', labelAddr: 'Alamat', labelPrice: 'Sewa per Bulan (Rp)', labelStatus: 'Status',
+        optAvailable: 'Tersedia', optRented: 'Disewa', btnCancel: 'Batal', btnSave: 'Simpan',
+        required: '❌ Email dan kata sandi wajib diisi', minPass: '❌ Kata sandi minimal 6 karakter',
+        signupSuccess: '✅ Akun berhasil dibuat! Selamat datang!', fillAll: '❌ Isi nama, alamat, dan harga',
+        saved: '✅ Tersimpan!', delConfirm: 'Hapus properti ini?', avail: 'Tersedia', rented: 'Disewa' }
     };
-
     let currentLang = 'en';
     const t = () => translations[currentLang];
-
+    let currentUser = null, unsub = null, editingId = null, currentProps = [];
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtRp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
     function setLang(lang) {
-      currentLang = lang;
-      const x = translations[lang];
+      currentLang = lang; const x = translations[lang];
       document.getElementById('subtitle').textContent = x.subtitle;
       document.getElementById('labelEmail').textContent = x.labelEmail;
       document.getElementById('labelPassword').textContent = x.labelPassword;
       document.getElementById('btnMasuk').textContent = x.btnMasuk;
       document.getElementById('btnDaftar').textContent = x.btnDaftar;
-      document.getElementById('dashTitle').textContent = x.dashTitle;
-      document.getElementById('dashEmailLabel').textContent = x.dashEmailLabel;
-      document.getElementById('dashWelcome').textContent = x.dashWelcome;
       document.getElementById('btnLogout').textContent = x.btnLogout;
-      document.getElementById('statusBar').textContent = x.dbReady;
-      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
-      document.getElementById('btnID').classList.toggle('active', lang === 'id');
-      document.getElementById('password').placeholder = lang === 'en' ? 'Minimum 6 characters' : 'Minimal 6 karakter';
-      document.getElementById('email').placeholder = lang === 'en' ? 'name@email.com' : 'nama@email.com';
+      document.getElementById('btnAdd').textContent = x.btnAdd;
+      document.getElementById('labelName').textContent = x.labelName;
+      document.getElementById('labelAddr').textContent = x.labelAddr;
+      document.getElementById('labelPrice').textContent = x.labelPrice;
+      document.getElementById('labelStatus').textContent = x.labelStatus;
+      document.getElementById('optAvailable').textContent = x.optAvailable;
+      document.getElementById('optRented').textContent = x.optRented;
+      document.getElementById('btnCancel').textContent = x.btnCancel;
+      document.getElementById('btnSave').textContent = x.btnSave;
+      document.getElementById('btnEN').classList.toggle('active', lang==='en');
+      document.getElementById('btnID').classList.toggle('active', lang==='id');
+      document.getElementById('btnEN2').classList.toggle('active', lang==='en');
+      document.getElementById('btnID2').classList.toggle('active', lang==='id');
+      document.getElementById('password').placeholder = lang==='en' ? 'Minimum 6 characters' : 'Minimal 6 karakter';
+      document.getElementById('email').placeholder = lang==='en' ? 'name@email.com' : 'nama@email.com';
+      if (currentUser) renderProps(currentProps);
     }
-
-    function showMessage(text, type) {
-      const msg = document.getElementById('message');
-      msg.textContent = text;
-      msg.className = 'message ' + type;
-    }
-    function clearMessage() {
-      document.getElementById('message').className = 'message';
-    }
-
-    function showDashboard(email) {
-      document.getElementById('authForm').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userEmail').textContent = email;
-    }
-    function showAuthForm() {
-      document.getElementById('dashboard').style.display = 'none';
-      document.getElementById('authForm').style.display = 'block';
-      document.getElementById('email').value = '';
-      document.getElementById('password').value = '';
-      clearMessage();
-    }
-
+    function showMessage(text, type) { const m = document.getElementById('message'); m.textContent = text; m.className = 'message ' + type; }
+    function clearMessage() { document.getElementById('message').className = 'message'; }
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('btnMasuk');
       if (!email || !password) return showMessage(t().required, 'error');
-      btn.disabled = true; btn.textContent = t().processing; clearMessage();
-      try {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        showDashboard(cred.user.email);
-      } catch (e) {
-        showMessage('❌ ' + e.message.replace('Firebase: ', '').replace(' (auth/', ' ').replace(').', ''), 'error');
-      } finally {
-        btn.disabled = false; btn.textContent = t().btnMasuk;
-      }
+      btn.disabled = true; btn.textContent = '...'; clearMessage();
+      try { await signInWithEmailAndPassword(auth, email, password); }
+      catch (e) { showMessage('❌ ' + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      finally { btn.disabled = false; btn.textContent = t().btnMasuk; }
     }
-
     async function handleDaftar() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('btnDaftar');
       if (!email || !password) return showMessage(t().required, 'error');
       if (password.length < 6) return showMessage(t().minPass, 'error');
-      btn.disabled = true; btn.textContent = t().signingUp; clearMessage();
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        showMessage(t().signupSuccess, 'success');
-        showDashboard(cred.user.email);
-      } catch (e) {
-        showMessage('❌ ' + e.message.replace('Firebase: ', '').replace(' (auth/', ' ').replace(').', ''), 'error');
-      } finally {
-        btn.disabled = false; btn.textContent = t().btnDaftar;
-      }
+      btn.disabled = true; btn.textContent = '...'; clearMessage();
+      try { await createUserWithEmailAndPassword(auth, email, password); }
+      catch (e) { showMessage('❌ ' + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      finally { btn.disabled = false; btn.textContent = t().btnDaftar; }
     }
-
+    function renderProps(list) {
+      currentProps = list; const box = document.getElementById('propList');
+      if (!list.length) { box.innerHTML = '<div class="empty">' + esc(t().empty).replace(/\n/g,'<br>') + '</div>'; return; }
+      box.innerHTML = list.map(p => `
+        <div class="prop-card">
+          <h3>${esc(p.name)}</h3>
+          <div class="addr">📍 ${esc(p.address)}</div>
+          <div class="prop-row">
+            <span class="price">${fmtRp(p.price)}</span>
+            <span class="badge ${p.status === 'rented' ? 'rented' : 'available'}">
+              ${p.status === 'rented' ? t().rented : t().avail}
+            </span>
+          </div>
+          <div class="prop-actions">
+            <button class="btn btn-primary" onclick="window._edit('${p.id}')">✏️</button>
+            <button class="btn btn-danger" onclick="window._del('${p.id}')">🗑️</button>
+          </div>
+        </div>`).join('');
+    }
+    window._edit = id => {
+      const p = currentProps.find(x => x.id === id); if (!p) return;
+      editingId = id; document.getElementById('modalTitle').textContent = t().modalEdit;
+      document.getElementById('pName').value = p.name;
+      document.getElementById('pAddr').value = p.address;
+      document.getElementById('pPrice').value = p.price;
+      document.getElementById('pStatus').value = p.status;
+      openModal();
+    };
+    window._del = async id => { if (!confirm(t().delConfirm)) return; await deleteDoc(doc(db, 'properties', id)); };
+    function openModal() { document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('modalMsg').className = 'message'; editingId = null; }
+    async function saveProperty() {
+      const name = document.getElementById('pName').value.trim();
+      const address = document.getElementById('pAddr').value.trim();
+      const price = Number(document.getElementById('pPrice').value);
+      const status = document.getElementById('pStatus').value;
+      const mm = document.getElementById('modalMsg');
+      if (!name || !address || !price) { mm.textContent = t().fillAll; mm.className = 'message error'; return; }
+      const btn = document.getElementById('btnSave'); btn.disabled = true;
+      try {
+        if (editingId) { await updateDoc(doc(db, 'properties', editingId), { name, address, price, status }); }
+        else { await addDoc(collection(db, 'properties'), { name, address, price, status, ownerId: currentUser.uid, createdAt: Date.now() }); }
+        closeModal();
+      } catch (e) { mm.textContent = '❌ ' + e.message; mm.className = 'message error'; }
+      finally { btn.disabled = false; }
+    }
+    function startListening() {
+      if (unsub) unsub();
+      const q = query(collection(db, 'properties'), where('ownerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+      unsub = onSnapshot(q, snap => { renderProps(snap.docs.map(d => ({ id: d.id, ...d.data() }))); });
+    }
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      if (user) {
+        document.getElementById('authForm').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('dashEmail').textContent = user.email;
+        startListening();
+      } else {
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('authForm').style.display = 'block';
+        if (unsub) { unsub(); unsub = null; }
+        currentProps = [];
+      }
+    });
     document.getElementById('btnMasuk').addEventListener('click', handleLogin);
     document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
-    document.getElementById('btnLogout').addEventListener('click', async () => { await signOut(auth); showAuthForm(); });
+    document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+    document.getElementById('btnAdd').addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = t().modalAdd;
+      document.getElementById('pName').value = ''; document.getElementById('pAddr').value = '';
+      document.getElementById('pPrice').value = ''; document.getElementById('pStatus').value = 'available';
+      openModal();
+    });
+    document.getElementById('btnCancel').addEventListener('click', closeModal);
+    document.getElementById('btnSave').addEventListener('click', saveProperty);
     document.getElementById('btnEN').addEventListener('click', () => setLang('en'));
     document.getElementById('btnID').addEventListener('click', () => setLang('id'));
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) showDashboard(user.email);
-      else showAuthForm();
-    });
-
+    document.getElementById('btnEN2').addEventListener('click', () => setLang('en'));
+    document.getElementById('btnID2').addEventListener('click', () => setLang('id'));
     setLang('en');
   </script>
 </body>
