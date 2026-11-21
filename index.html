@@ -9,8 +9,7 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
+      min-height: 100vh; padding: 20px;
     }
     .card {
       background: white; padding: 30px; border-radius: 12px;
@@ -160,7 +159,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy }
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const firebaseConfig = {
       apiKey: "AIzaSyAUnYXGF6n2G8-a4x3m3vDFOtkwGGTQa_0",
@@ -182,8 +181,9 @@
         labelName: 'Property Name', labelAddr: 'Address', labelPrice: 'Monthly Rent (Rp)', labelStatus: 'Status',
         optAvailable: 'Available', optRented: 'Rented', btnCancel: 'Cancel', btnSave: 'Save',
         required: '❌ Email and password are required', minPass: '❌ Password must be at least 6 characters',
-        signupSuccess: '✅ Account created! Welcome!', fillAll: '❌ Please fill name, address and price',
-        saved: '✅ Saved!', delConfirm: 'Delete this property?', avail: 'Available', rented: 'Rented' },
+        fillAll: '❌ Please fill name, address and price',
+        delConfirm: 'Delete this property?', avail: 'Available', rented: 'Rented',
+        loginError: '❌ Login failed: ' },
       id: { subtitle: 'Pengelolaan Properti & Penyewa', labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnAdd: '➕ Tambah Properti',
         empty: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
@@ -191,14 +191,19 @@
         labelName: 'Nama Properti', labelAddr: 'Alamat', labelPrice: 'Sewa per Bulan (Rp)', labelStatus: 'Status',
         optAvailable: 'Tersedia', optRented: 'Disewa', btnCancel: 'Batal', btnSave: 'Simpan',
         required: '❌ Email dan kata sandi wajib diisi', minPass: '❌ Kata sandi minimal 6 karakter',
-        signupSuccess: '✅ Akun berhasil dibuat! Selamat datang!', fillAll: '❌ Isi nama, alamat, dan harga',
-        saved: '✅ Tersimpan!', delConfirm: 'Hapus properti ini?', avail: 'Tersedia', rented: 'Disewa' }
+        fillAll: '❌ Isi nama, alamat, dan harga',
+        delConfirm: 'Hapus properti ini?', avail: 'Tersedia', rented: 'Disewa',
+        loginError: '❌ Gagal login: ' }
     };
     let currentLang = 'en';
     const t = () => translations[currentLang];
     let currentUser = null, unsub = null, editingId = null, currentProps = [];
-    const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const fmtRp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    // Helper: ambil field dengan fallback (Indonesia / Inggris)
+    const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
+
     function setLang(lang) {
       currentLang = lang; const x = translations[lang];
       document.getElementById('subtitle').textContent = x.subtitle;
@@ -224,8 +229,10 @@
       document.getElementById('email').placeholder = lang==='en' ? 'name@email.com' : 'nama@email.com';
       if (currentUser) renderProps(currentProps);
     }
+
     function showMessage(text, type) { const m = document.getElementById('message'); m.textContent = text; m.className = 'message ' + type; }
     function clearMessage() { document.getElementById('message').className = 'message'; }
+
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
@@ -233,7 +240,7 @@
       if (!email || !password) return showMessage(t().required, 'error');
       btn.disabled = true; btn.textContent = '...'; clearMessage();
       try { await signInWithEmailAndPassword(auth, email, password); }
-      catch (e) { showMessage('❌ ' + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
       finally { btn.disabled = false; btn.textContent = t().btnMasuk; }
     }
     async function handleDaftar() {
@@ -244,40 +251,49 @@
       if (password.length < 6) return showMessage(t().minPass, 'error');
       btn.disabled = true; btn.textContent = '...'; clearMessage();
       try { await createUserWithEmailAndPassword(auth, email, password); }
-      catch (e) { showMessage('❌ ' + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
       finally { btn.disabled = false; btn.textContent = t().btnDaftar; }
     }
+
     function renderProps(list) {
       currentProps = list; const box = document.getElementById('propList');
       if (!list.length) { box.innerHTML = '<div class="empty">' + esc(t().empty).replace(/\n/g,'<br>') + '</div>'; return; }
-      box.innerHTML = list.map(p => `
+      box.innerHTML = list.map(p => {
+        const name = get(p, 'nama', 'name');
+        const address = get(p, 'alamat', 'address');
+        const price = get(p, 'harga', 'price');
+        const status = p.status || 'available';
+        return `
         <div class="prop-card">
-          <h3>${esc(p.name)}</h3>
-          <div class="addr">📍 ${esc(p.address)}</div>
+          <h3>${esc(name)}</h3>
+          <div class="addr">📍 ${esc(address)}</div>
           <div class="prop-row">
-            <span class="price">${fmtRp(p.price)}</span>
-            <span class="badge ${p.status === 'rented' ? 'rented' : 'available'}">
-              ${p.status === 'rented' ? t().rented : t().avail}
+            <span class="price">${fmtRp(price)}</span>
+            <span class="badge ${status === 'rented' ? 'rented' : 'available'}">
+              ${status === 'rented' ? t().rented : t().avail}
             </span>
           </div>
           <div class="prop-actions">
             <button class="btn btn-primary" onclick="window._edit('${p.id}')">✏️</button>
             <button class="btn btn-danger" onclick="window._del('${p.id}')">🗑️</button>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
+
     window._edit = id => {
       const p = currentProps.find(x => x.id === id); if (!p) return;
       editingId = id; document.getElementById('modalTitle').textContent = t().modalEdit;
-      document.getElementById('pName').value = p.name;
-      document.getElementById('pAddr').value = p.address;
-      document.getElementById('pPrice').value = p.price;
-      document.getElementById('pStatus').value = p.status;
+      document.getElementById('pName').value = get(p, 'nama', 'name');
+      document.getElementById('pAddr').value = get(p, 'alamat', 'address');
+      document.getElementById('pPrice').value = get(p, 'harga', 'price');
+      document.getElementById('pStatus').value = p.status || 'available';
       openModal();
     };
     window._del = async id => { if (!confirm(t().delConfirm)) return; await deleteDoc(doc(db, 'properties', id)); };
     function openModal() { document.getElementById('modal').classList.add('open'); }
     function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('modalMsg').className = 'message'; editingId = null; }
+
     async function saveProperty() {
       const name = document.getElementById('pName').value.trim();
       const address = document.getElementById('pAddr').value.trim();
@@ -287,17 +303,48 @@
       if (!name || !address || !price) { mm.textContent = t().fillAll; mm.className = 'message error'; return; }
       const btn = document.getElementById('btnSave'); btn.disabled = true;
       try {
-        if (editingId) { await updateDoc(doc(db, 'properties', editingId), { name, address, price, status }); }
-        else { await addDoc(collection(db, 'properties'), { name, address, price, status, ownerId: currentUser.uid, createdAt: Date.now() }); }
+        // Simpan dengan KEDUA nama field (Indonesia + Inggris) agar fleksibel
+        const data = {
+          nama: name, name: name,
+          alamat: address, address: address,
+          harga: price, price: price,
+          status: status,
+          'ID pemilik': currentUser.uid, ownerId: currentUser.uid,
+          dibuatPada: Date.now(), createdAt: Date.now()
+        };
+        if (editingId) { await updateDoc(doc(db, 'properties', editingId), data); }
+        else { await addDoc(collection(db, 'properties'), data); }
         closeModal();
       } catch (e) { mm.textContent = '❌ ' + e.message; mm.className = 'message error'; }
       finally { btn.disabled = false; }
     }
+
     function startListening() {
       if (unsub) unsub();
-      const q = query(collection(db, 'properties'), where('ownerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
-      unsub = onSnapshot(q, snap => { renderProps(snap.docs.map(d => ({ id: d.id, ...d.data() }))); });
+      // Coba query dengan ownerId dulu, fallback ke 'ID pemilik'
+      const q = query(collection(db, 'properties'), where('ownerId', '==', currentUser.uid));
+      unsub = onSnapshot(q, snap => {
+        if (snap.empty) {
+          // Coba query alternatif dengan nama field Indonesia
+          const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
+          unsub = onSnapshot(q2, snap2 => {
+            renderProps(snap2.docs.map(d => ({ id: d.id, ...d.data() })));
+          });
+        } else {
+          renderProps(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }
+      }, err => {
+        // Jika query ownerId gagal, coba 'ID pemilik'
+        const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
+        unsub = onSnapshot(q2, snap2 => {
+          renderProps(snap2.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, err2 => {
+          document.getElementById('propList').innerHTML =
+            '<div class="empty">⚠️ ' + err2.message + '</div>';
+        });
+      });
     }
+
     onAuthStateChanged(auth, user => {
       currentUser = user;
       if (user) {
@@ -312,6 +359,7 @@
         currentProps = [];
       }
     });
+
     document.getElementById('btnMasuk').addEventListener('click', handleLogin);
     document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
