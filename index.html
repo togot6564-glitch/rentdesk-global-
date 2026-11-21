@@ -45,26 +45,10 @@
       color: white;
       border-color: #667eea;
     }
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 28px;
-    }
-    .subtitle {
-      color: #666;
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 14px;
-    }
+    h1 { color: #333; text-align: center; margin-bottom: 10px; font-size: 28px; }
+    .subtitle { color: #666; text-align: center; margin-bottom: 25px; font-size: 14px; }
     .form-group { margin-bottom: 15px; }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
+    label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 14px; }
     input {
       width: 100%;
       padding: 14px;
@@ -72,15 +56,8 @@
       border-radius: 8px;
       font-size: 16px;
     }
-    input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    .button-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
+    input:focus { outline: none; border-color: #667eea; }
+    .button-row { display: flex; gap: 10px; margin-top: 20px; }
     .btn {
       flex: 1;
       padding: 14px;
@@ -91,55 +68,16 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn:active {
-      transform: scale(0.95);
-    }
-    .btn-masuk {
-      background: #667eea;
-      color: white;
-    }
-    .btn-daftar {
-      background: #10b981;
-      color: white;
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .message {
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-size: 14px;
-      display: none;
-    }
-    .message.error {
-      background: #fee;
-      color: #c33;
-      border: 1px solid #fcc;
-      display: block;
-    }
-    .message.success {
-      background: #efe;
-      color: #3c3;
-      border: 1px solid #cfc;
-      display: block;
-    }
-    .message.info {
-      background: #eef;
-      color: #33c;
-      border: 1px solid #ccf;
-      display: block;
-    }
+    .btn:active { transform: scale(0.95); }
+    .btn-masuk { background: #667eea; color: white; }
+    .btn-daftar { background: #10b981; color: white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .message { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: none; }
+    .message.error { background: #fee; color: #c33; border: 1px solid #fcc; display: block; }
+    .message.success { background: #efe; color: #3c3; border: 1px solid #cfc; display: block; }
     .dashboard { display: none; text-align: center; }
     .dashboard h2 { color: #333; margin-bottom: 15px; }
-    .user-info {
-      background: #f5f5f5;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      word-break: break-all;
-    }
+    .user-info { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; word-break: break-all; }
     .logout-btn {
       background: #e74c3c;
       color: white;
@@ -152,13 +90,13 @@
       cursor: pointer;
     }
     .status-bar {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
+      background: #d4edda;
+      border: 1px solid #28a745;
       padding: 10px;
       border-radius: 6px;
       margin-bottom: 15px;
       font-size: 13px;
-      color: #856404;
+      color: #155724;
     }
   </style>
 </head>
@@ -168,31 +106,30 @@
       <button class="lang-btn active" id="btnEN">EN</button>
       <button class="lang-btn" id="btnID">ID</button>
     </div>
-    
+
     <div id="authForm">
       <h1>🏠 RentDesk</h1>
       <p class="subtitle" id="subtitle">Property & Tenant Management</p>
-      
-      <div id="statusBar" class="status-bar">⏳ Loading database...</div>
-      
+
+      <div id="statusBar" class="status-bar">✅ Firebase connected</div>
       <div id="message" class="message"></div>
-      
+
       <div class="form-group">
         <label for="email" id="labelEmail">Email</label>
         <input type="email" id="email" placeholder="name@email.com">
       </div>
-      
+
       <div class="form-group">
         <label for="password" id="labelPassword">Password</label>
         <input type="password" id="password" placeholder="Minimum 6 characters">
       </div>
-      
+
       <div class="button-row">
         <button class="btn btn-masuk" id="btnMasuk">Sign In</button>
         <button class="btn btn-daftar" id="btnDaftar">Sign Up</button>
       </div>
     </div>
-    
+
     <div id="dashboard" class="dashboard">
       <h2 id="dashTitle">✅ Login Successful!</h2>
       <div class="user-info">
@@ -206,270 +143,146 @@
     </div>
   </div>
 
-  <script>
-    // ===== TRANSLATIONS =====
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUnYXGF6n2G8-a4x3m3vDFOtkwGGTQa_0",
+      authDomain: "rentdesk-manager.firebaseapp.com",
+      projectId: "rentdesk-manager",
+      storageBucket: "rentdesk-manager.firebasestorage.app",
+      messagingSenderId: "216408702650",
+      appId: "1:216408702650:web:75363154e03b95b36ccc83",
+      measurementId: "G-NXJKHYD59V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     const translations = {
       en: {
         subtitle: 'Property & Tenant Management',
-        labelEmail: 'Email',
-        labelPassword: 'Password',
-        btnMasuk: 'Sign In',
-        btnDaftar: 'Sign Up',
-        dashTitle: '✅ Login Successful!',
-        dashEmailLabel: 'Your Email:',
+        labelEmail: 'Email', labelPassword: 'Password',
+        btnMasuk: 'Sign In', btnDaftar: 'Sign Up',
+        dashTitle: '✅ Login Successful!', dashEmailLabel: 'Your Email:',
         dashWelcome: 'Welcome to RentDesk. Dashboard features coming soon!',
-        btnLogout: 'Sign Out',
-        processing: 'Processing...',
-        signingUp: 'Signing up...',
+        btnLogout: 'Sign Out', processing: 'Processing...', signingUp: 'Signing up...',
         required: '❌ Email and password are required',
         minPass: '❌ Password must be at least 6 characters',
-        signupSuccess: '✅ Account created! Please sign in.',
-        dbLoading: '⏳ Loading database...',
-        dbReady: '✅ Database connected',
-        dbError: '❌ Database failed to load. Please refresh.'
+        signupSuccess: '✅ Account created! Welcome!',
+        dbReady: '✅ Firebase connected', dbError: '❌ Firebase failed to load'
       },
       id: {
         subtitle: 'Pengelolaan Properti & Penyewa',
-        labelEmail: 'Email',
-        labelPassword: 'Kata Sandi',
-        btnMasuk: 'Masuk',
-        btnDaftar: 'Daftar',
-        dashTitle: '✅ Berhasil Login!',
-        dashEmailLabel: 'Email Anda:',
+        labelEmail: 'Email', labelPassword: 'Kata Sandi',
+        btnMasuk: 'Masuk', btnDaftar: 'Daftar',
+        dashTitle: '✅ Berhasil Login!', dashEmailLabel: 'Email Anda:',
         dashWelcome: 'Selamat datang di RentDesk. Fitur dashboard segera hadir!',
-        btnLogout: 'Keluar',
-        processing: 'Memproses...',
-        signingUp: 'Mendaftar...',
+        btnLogout: 'Keluar', processing: 'Memproses...', signingUp: 'Mendaftar...',
         required: '❌ Email dan kata sandi wajib diisi',
         minPass: '❌ Kata sandi minimal 6 karakter',
-        signupSuccess: '✅ Akun berhasil dibuat! Silakan masuk.',
-        dbLoading: '⏳ Memuat database...',
-        dbReady: '✅ Database terhubung',
-        dbError: '❌ Database gagal dimuat. Silakan refresh.'
+        signupSuccess: '✅ Akun berhasil dibuat! Selamat datang!',
+        dbReady: '✅ Firebase terhubung', dbError: '❌ Firebase gagal dimuat'
       }
     };
-    
+
     let currentLang = 'en';
-    let supabase = null;
-    
-    // ===== LOAD SUPABASE DYNAMICALLY =====
-    function loadSupabase() {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
-        script.onload = () => {
-          console.log('✅ Supabase script loaded');
-          resolve();
-        };
-        script.onerror = () => {
-          console.error('❌ Supabase script failed to load');
-          reject(new Error('Failed to load Supabase'));
-        };
-        document.head.appendChild(script);
-      });
-    }
-    
-    // ===== INIT SUPABASE =====
-    async function initSupabase() {
-      const statusBar = document.getElementById('statusBar');
-      const t = translations[currentLang];
-      
-      try {
-        statusBar.textContent = t.dbLoading;
-        await loadSupabase();
-        
-        if (typeof window.supabase !== 'undefined') {
-          supabase = window.supabase.createClient(
-            'https://rtychlvtoirxsrakxdya.supabase.co',
-            'sb_publishable_QZbMPa5m-FC53xD0De4O6A_nnm_WywL'
-          );
-          statusBar.textContent = t.dbReady;
-          statusBar.style.background = '#d4edda';
-          statusBar.style.borderColor = '#28a745';
-          statusBar.style.color = '#155724';
-          console.log('✅ Supabase client created');
-          return true;
-        } else {
-          throw new Error('Supabase object not found');
-        }
-      } catch (error) {
-        statusBar.textContent = t.dbError;
-        statusBar.style.background = '#f8d7da';
-        statusBar.style.borderColor = '#dc3545';
-        statusBar.style.color = '#721c24';
-        console.error('❌ Init error:', error);
-        return false;
-      }
-    }
-    
-    // ===== LANGUAGE SWITCHING =====
+    const t = () => translations[currentLang];
+
     function setLang(lang) {
       currentLang = lang;
-      const t = translations[lang];
-      
-      document.getElementById('subtitle').textContent = t.subtitle;
-      document.getElementById('labelEmail').textContent = t.labelEmail;
-      document.getElementById('labelPassword').textContent = t.labelPassword;
-      document.getElementById('btnMasuk').textContent = t.btnMasuk;
-      document.getElementById('btnDaftar').textContent = t.btnDaftar;
-      document.getElementById('dashTitle').textContent = t.dashTitle;
-      document.getElementById('dashEmailLabel').textContent = t.dashEmailLabel;
-      document.getElementById('dashWelcome').textContent = t.dashWelcome;
-      document.getElementById('btnLogout').textContent = t.btnLogout;
-      
+      const x = translations[lang];
+      document.getElementById('subtitle').textContent = x.subtitle;
+      document.getElementById('labelEmail').textContent = x.labelEmail;
+      document.getElementById('labelPassword').textContent = x.labelPassword;
+      document.getElementById('btnMasuk').textContent = x.btnMasuk;
+      document.getElementById('btnDaftar').textContent = x.btnDaftar;
+      document.getElementById('dashTitle').textContent = x.dashTitle;
+      document.getElementById('dashEmailLabel').textContent = x.dashEmailLabel;
+      document.getElementById('dashWelcome').textContent = x.dashWelcome;
+      document.getElementById('btnLogout').textContent = x.btnLogout;
+      document.getElementById('statusBar').textContent = x.dbReady;
       document.getElementById('btnEN').classList.toggle('active', lang === 'en');
       document.getElementById('btnID').classList.toggle('active', lang === 'id');
-      
       document.getElementById('password').placeholder = lang === 'en' ? 'Minimum 6 characters' : 'Minimal 6 karakter';
       document.getElementById('email').placeholder = lang === 'en' ? 'name@email.com' : 'nama@email.com';
-      
-      // Update status bar text
-      const statusBar = document.getElementById('statusBar');
-      if (statusBar.textContent.includes('Loading') || statusBar.textContent.includes('Memuat')) {
-        statusBar.textContent = t.dbLoading;
-      } else if (statusBar.textContent.includes('connected') || statusBar.textContent.includes('terhubung')) {
-        statusBar.textContent = t.dbReady;
-      } else if (statusBar.textContent.includes('failed') || statusBar.textContent.includes('gagal')) {
-        statusBar.textContent = t.dbError;
-      }
     }
-    
-    // ===== MESSAGE HANDLING =====
+
     function showMessage(text, type) {
       const msg = document.getElementById('message');
       msg.textContent = text;
       msg.className = 'message ' + type;
     }
-    
     function clearMessage() {
       document.getElementById('message').className = 'message';
     }
-    
-    // ===== AUTH FUNCTIONS =====
-    async function handleLogin() {
-      console.log('🔵 Sign In clicked');
-      
-      if (!supabase) {
-        showMessage('❌ Database not ready. Please wait or refresh.', 'error');
-        return;
-      }
-      
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const btn = document.getElementById('btnMasuk');
-      const t = translations[currentLang];
-      
-      if (!email || !password) {
-        showMessage(t.required, 'error');
-        return;
-      }
-      
-      btn.disabled = true;
-      btn.textContent = t.processing;
-      clearMessage();
-      
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        showDashboard(data.user.email);
-      } catch (error) {
-        showMessage('❌ ' + error.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = t.btnMasuk;
-      }
+
+    function showDashboard(email) {
+      document.getElementById('authForm').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('userEmail').textContent = email;
     }
-    
-    async function handleDaftar() {
-      console.log('🟢 Sign Up clicked');
-      
-      if (!supabase) {
-        showMessage('❌ Database not ready. Please wait or refresh.', 'error');
-        return;
-      }
-      
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const btn = document.getElementById('btnDaftar');
-      const t = translations[currentLang];
-      
-      if (!email || !password) {
-        showMessage(t.required, 'error');
-        return;
-      }
-      if (password.length < 6) {
-        showMessage(t.minPass, 'error');
-        return;
-      }
-      
-      btn.disabled = true;
-      btn.textContent = t.signingUp;
-      clearMessage();
-      
-      try {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        
-        if (data.user && !data.session) {
-          showMessage(t.signupSuccess, 'success');
-        } else {
-          showDashboard(data.user.email);
-        }
-      } catch (error) {
-        showMessage('❌ ' + error.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = t.btnDaftar;
-      }
-    }
-    
-    async function handleLogout() {
-      if (supabase) {
-        await supabase.auth.signOut();
-      }
+    function showAuthForm() {
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('authForm').style.display = 'block';
       document.getElementById('email').value = '';
       document.getElementById('password').value = '';
       clearMessage();
     }
-    
-    function showDashboard(email) {
-      document.getElementById('authForm').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('userEmail').textContent = email;
-    }
-    
-    async function checkSession() {
-      if (supabase) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) showDashboard(session.user.email);
+
+    async function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btnMasuk');
+      if (!email || !password) return showMessage(t().required, 'error');
+      btn.disabled = true; btn.textContent = t().processing; clearMessage();
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        showDashboard(cred.user.email);
+      } catch (e) {
+        showMessage('❌ ' + e.message.replace('Firebase: ', '').replace(' (auth/', ' ').replace(').', ''), 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = t().btnMasuk;
       }
     }
-    
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', async function() {
-      console.log('🚀 App starting...');
-      
-      // Set default language
-      setLang('en');
-      
-      // Button click handlers
-      document.getElementById('btnMasuk').addEventListener('click', handleLogin);
-      document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
-      document.getElementById('btnLogout').addEventListener('click', handleLogout);
-      document.getElementById('btnEN').addEventListener('click', () => setLang('en'));
-      document.getElementById('btnID').addEventListener('click', () => setLang('id'));
-      
-      // Load Supabase
-      const ready = await initSupabase();
-      
-      if (ready) {
-        await checkSession();
+
+    async function handleDaftar() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btnDaftar');
+      if (!email || !password) return showMessage(t().required, 'error');
+      if (password.length < 6) return showMessage(t().minPass, 'error');
+      btn.disabled = true; btn.textContent = t().signingUp; clearMessage();
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        showMessage(t().signupSuccess, 'success');
+        showDashboard(cred.user.email);
+      } catch (e) {
+        showMessage('❌ ' + e.message.replace('Firebase: ', '').replace(' (auth/', ' ').replace(').', ''), 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = t().btnDaftar;
       }
-      
-      console.log('✅ App initialized');
+    }
+
+    document.getElementById('btnMasuk').addEventListener('click', handleLogin);
+    document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
+    document.getElementById('btnLogout').addEventListener('click', async () => { await signOut(auth); showAuthForm(); });
+    document.getElementById('btnEN').addEventListener('click', () => setLang('en'));
+    document.getElementById('btnID').addEventListener('click', () => setLang('id'));
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) showDashboard(user.email);
+      else showAuthForm();
     });
+
+    setLang('en');
   </script>
 </body>
 </html>
