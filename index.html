@@ -89,6 +89,10 @@
       .modal-box { border-radius: 16px; }
     }
     .modal-box h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
+    .forgot-link {
+      display: block; text-align: right; font-size: 13px;
+      color: #667eea; text-decoration: none; margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -107,6 +111,7 @@
     <div class="form-group">
       <label for="password" id="labelPassword">Password</label>
       <input type="password" id="password" placeholder="Minimum 6 characters">
+      <a href="#" class="forgot-link" id="btnLupa">Forgot Password?</a>
     </div>
     <div class="button-row">
       <button class="btn btn-primary" id="btnMasuk">Sign In</button>
@@ -157,7 +162,7 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -176,6 +181,7 @@
     const translations = {
       en: { subtitle: 'Property & Tenant Management', labelEmail: 'Email', labelPassword: 'Password',
         btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnAdd: '➕ Add Property',
+        btnLupa: 'Forgot Password?',
         empty: '📭 No properties yet.\nTap "Add Property" to create your first one.',
         modalAdd: 'Add Property', modalEdit: 'Edit Property',
         labelName: 'Property Name', labelAddr: 'Address', labelPrice: 'Monthly Rent (Rp)', labelStatus: 'Status',
@@ -183,9 +189,13 @@
         required: '❌ Email and password are required', minPass: '❌ Password must be at least 6 characters',
         fillAll: '❌ Please fill name, address and price',
         delConfirm: 'Delete this property?', avail: 'Available', rented: 'Rented',
-        loginError: '❌ Login failed: ' },
+        loginError: '❌ Login failed: ',
+        resetNeedEmail: '❌ Enter your email in the Email field first, then tap Forgot Password.',
+        resetSent: '✅ Reset link sent to your email. Check inbox or spam.',
+        resetSending: 'Sending...' },
       id: { subtitle: 'Pengelolaan Properti & Penyewa', labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnAdd: '➕ Tambah Properti',
+        btnLupa: 'Lupa Password?',
         empty: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
         modalAdd: 'Tambah Properti', modalEdit: 'Edit Properti',
         labelName: 'Nama Properti', labelAddr: 'Alamat', labelPrice: 'Sewa per Bulan (Rp)', labelStatus: 'Status',
@@ -193,15 +203,16 @@
         required: '❌ Email dan kata sandi wajib diisi', minPass: '❌ Kata sandi minimal 6 karakter',
         fillAll: '❌ Isi nama, alamat, dan harga',
         delConfirm: 'Hapus properti ini?', avail: 'Tersedia', rented: 'Disewa',
-        loginError: '❌ Gagal login: ' }
+        loginError: '❌ Gagal login: ',
+        resetNeedEmail: '❌ Masukkan email di kolom Email dulu, lalu ketuk Lupa Password.',
+        resetSent: '✅ Link reset telah dikirim ke email Anda. Cek kotak masuk atau spam.',
+        resetSending: 'Mengirim...' }
     };
     let currentLang = 'en';
     const t = () => translations[currentLang];
     let currentUser = null, unsub = null, editingId = null, currentProps = [];
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const fmtRp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-
-    // Helper: ambil field dengan fallback (Indonesia / Inggris)
     const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
 
     function setLang(lang) {
@@ -213,6 +224,7 @@
       document.getElementById('btnDaftar').textContent = x.btnDaftar;
       document.getElementById('btnLogout').textContent = x.btnLogout;
       document.getElementById('btnAdd').textContent = x.btnAdd;
+      document.getElementById('btnLupa').textContent = x.btnLupa;
       document.getElementById('labelName').textContent = x.labelName;
       document.getElementById('labelAddr').textContent = x.labelAddr;
       document.getElementById('labelPrice').textContent = x.labelPrice;
@@ -253,6 +265,21 @@
       try { await createUserWithEmailAndPassword(auth, email, password); }
       catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
       finally { btn.disabled = false; btn.textContent = t().btnDaftar; }
+    }
+    async function handleReset() {
+      const email = document.getElementById('email').value.trim();
+      const msgBox = document.getElementById('message');
+      if (!email) { msgBox.textContent = t().resetNeedEmail; msgBox.className = 'message error'; return; }
+      const btn = document.getElementById('btnLupa');
+      const oldText = btn.textContent;
+      btn.textContent = t().resetSending; btn.style.pointerEvents = 'none';
+      try {
+        await sendPasswordResetEmail(auth, email);
+        msgBox.textContent = t().resetSent; msgBox.className = 'message success';
+      } catch (e) {
+        msgBox.textContent = '❌ ' + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,'');
+        msgBox.className = 'message error';
+      } finally { btn.textContent = oldText; btn.style.pointerEvents = 'auto'; }
     }
 
     function renderProps(list) {
@@ -303,7 +330,6 @@
       if (!name || !address || !price) { mm.textContent = t().fillAll; mm.className = 'message error'; return; }
       const btn = document.getElementById('btnSave'); btn.disabled = true;
       try {
-        // Simpan dengan KEDUA nama field (Indonesia + Inggris) agar fleksibel
         const data = {
           nama: name, name: name,
           alamat: address, address: address,
@@ -321,26 +347,28 @@
 
     function startListening() {
       if (unsub) unsub();
-      // Coba query dengan ownerId dulu, fallback ke 'ID pemilik'
       const q = query(collection(db, 'properties'), where('ownerId', '==', currentUser.uid));
       unsub = onSnapshot(q, snap => {
         if (snap.empty) {
-          // Coba query alternatif dengan nama field Indonesia
           const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
           unsub = onSnapshot(q2, snap2 => {
-            renderProps(snap2.docs.map(d => ({ id: d.id, ...d.data() })));
+            const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+            list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
+            renderProps(list);
           });
         } else {
-          renderProps(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
+          renderProps(list);
         }
       }, err => {
-        // Jika query ownerId gagal, coba 'ID pemilik'
         const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
         unsub = onSnapshot(q2, snap2 => {
-          renderProps(snap2.docs.map(d => ({ id: d.id, ...d.data() })));
+          const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+          list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
+          renderProps(list);
         }, err2 => {
-          document.getElementById('propList').innerHTML =
-            '<div class="empty">⚠️ ' + err2.message + '</div>';
+          document.getElementById('propList').innerHTML = '<div class="empty">⚠️ ' + err2.message + '</div>';
         });
       });
     }
@@ -357,11 +385,13 @@
         document.getElementById('authForm').style.display = 'block';
         if (unsub) { unsub(); unsub = null; }
         currentProps = [];
+        clearMessage();
       }
     });
 
     document.getElementById('btnMasuk').addEventListener('click', handleLogin);
     document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
+    document.getElementById('btnLupa').addEventListener('click', (e) => { e.preventDefault(); handleReset(); });
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
     document.getElementById('btnAdd').addEventListener('click', () => {
       document.getElementById('modalTitle').textContent = t().modalAdd;
