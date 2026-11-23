@@ -57,9 +57,9 @@
     .topbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .tab-bar { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-btn {
-      flex: 1; padding: 12px; border: 2px solid white; border-radius: 10px;
+      flex: 1; padding: 12px 6px; border: 2px solid white; border-radius: 10px;
       background: rgba(255,255,255,0.3); color: white; font-weight: 700;
-      font-size: 15px; cursor: pointer;
+      font-size: 14px; cursor: pointer;
     }
     .tab-btn.active { background: white; color: #667eea; }
     .add-btn {
@@ -71,19 +71,20 @@
       background: rgba(255,255,255,0.9); border-radius: 12px; padding: 30px;
       text-align: center; color: #777; font-size: 15px;
     }
-    .prop-card, .tenant-card {
+    .prop-card, .tenant-card, .rent-card {
       background: white; border-radius: 12px; padding: 18px;
       margin-bottom: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.12);
     }
-    .prop-card h3, .tenant-card h3 { color: #333; font-size: 18px; margin-bottom: 6px; }
-    .prop-card .addr, .tenant-card .info { color: #777; font-size: 14px; margin-bottom: 8px; }
+    .prop-card h3, .tenant-card h3, .rent-card h3 { color: #333; font-size: 17px; margin-bottom: 6px; }
+    .prop-card .addr, .tenant-card .info, .rent-card .info { color: #777; font-size: 14px; margin-bottom: 8px; }
     .prop-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .price { color: #667eea; font-weight: 700; font-size: 17px; }
     .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
     .badge.available { background: #d1fae5; color: #065f46; }
     .badge.rented { background: #fee2e2; color: #991b1b; }
-    .prop-actions, .tenant-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .prop-actions .btn, .tenant-actions .btn { padding: 8px 14px; font-size: 14px; }
+    .badge.inactive { background: #eee; color: #666; }
+    .prop-actions, .tenant-actions, .rent-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .prop-actions .btn, .tenant-actions .btn, .rent-actions .btn { padding: 8px 14px; font-size: 14px; }
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
       z-index: 100; align-items: flex-end; justify-content: center;
@@ -109,7 +110,6 @@
   </style>
 </head>
 <body>
-  <!-- ===== AUTH FORM ===== -->
   <div class="card" id="authForm">
     <div class="top-controls">
       <div class="lang-toggle">
@@ -135,7 +135,6 @@
     </div>
   </div>
 
-  <!-- ===== DASHBOARD ===== -->
   <div id="dashboard">
     <div class="topbar">
       <span class="brand">🏠 RentDesk</span>
@@ -156,6 +155,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" id="tabProp">🏠 Properties</button>
       <button class="tab-btn" id="tabTen">👥 Tenants</button>
+      <button class="tab-btn" id="tabRent">📄 Rentals</button>
     </div>
 
     <div id="viewProp">
@@ -167,9 +167,13 @@
       <button class="add-btn" id="btnAddTen">➕ Add Tenant</button>
       <div id="tenantList"></div>
     </div>
+
+    <div id="viewRent" style="display:none;">
+      <button class="add-btn" id="btnAddRent">➕ New Rental</button>
+      <div id="rentList"></div>
+    </div>
   </div>
 
-  <!-- ===== MODAL PROPERTI ===== -->
   <div class="modal" id="modalProp">
     <div class="modal-box">
       <h2 id="modalTitleProp">Add Property</h2>
@@ -200,7 +204,6 @@
     </div>
   </div>
 
-  <!-- ===== MODAL PENYEWA ===== -->
   <div class="modal" id="modalTen">
     <div class="modal-box">
       <h2 id="modalTitleTen">Add Tenant</h2>
@@ -232,6 +235,44 @@
     </div>
   </div>
 
+  <div class="modal" id="modalRent">
+    <div class="modal-box">
+      <h2 id="modalTitleRent">New Rental</h2>
+      <div id="modalMsgRent" class="message"></div>
+      <div class="form-group">
+        <label for="rTenant" id="labelRTenant">Tenant</label>
+        <select id="rTenant"></select>
+      </div>
+      <div class="form-group">
+        <label for="rProperty" id="labelRProperty">Property</label>
+        <select id="rProperty"></select>
+      </div>
+      <div class="form-group">
+        <label for="rStart" id="labelRStart">Start Date</label>
+        <input type="date" id="rStart">
+      </div>
+      <div class="form-group">
+        <label for="rEnd" id="labelREnd">End Date</label>
+        <input type="date" id="rEnd">
+      </div>
+      <div class="form-group">
+        <label for="rPrice" id="labelRPrice">Monthly Rent (IDR)</label>
+        <input type="number" id="rPrice" placeholder="1500000" min="0">
+      </div>
+      <div class="form-group">
+        <label for="rStatus" id="labelRStatus">Status</label>
+        <select id="rStatus">
+          <option value="active" id="optActive">Active</option>
+          <option value="inactive" id="optInactive">Inactive</option>
+        </select>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-ghost" id="btnCancelRent">Cancel</button>
+        <button class="btn btn-success" id="btnSaveRent">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
@@ -252,8 +293,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    // Kurs tetap: 1 USD = 15,500 IDR (bisa diubah nanti)
     const EXCHANGE_RATE = 15500;
 
     const translations = {
@@ -261,90 +300,91 @@
         subtitle: 'Property & Tenant Management',
         labelEmail: 'Email', labelPassword: 'Password',
         btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnLupa: 'Forgot Password?',
-        tabProp: '🏠 Properties', tabTen: '👥 Tenants',
-        btnAddProp: '➕ Add Property', btnAddTen: '➕ Add Tenant',
+        tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals',
+        btnAddProp: '➕ Add Property', btnAddTen: '➕ Add Tenant', btnAddRent: '➕ New Rental',
         emptyProp: '📭 No properties yet.\nTap "Add Property" to create your first one.',
         emptyTen: '📭 No tenants yet.\nTap "Add Tenant" to register your first tenant.',
+        emptyRent: '📭 No rentals yet.\nTap "New Rental" to create a contract.',
         modalAddProp: 'Add Property', modalEditProp: 'Edit Property',
         modalAddTen: 'Add Tenant', modalEditTen: 'Edit Tenant',
+        modalAddRent: 'New Rental', modalEditRent: 'Edit Rental',
         labelPName: 'Property Name', labelPAddr: 'Address', labelPPrice: 'Monthly Rent (IDR)', labelPStatus: 'Status',
         optAvailable: 'Available', optRented: 'Rented',
         labelTName: 'Full Name', labelTId: 'ID / KTP Number', labelTPhone: 'Phone Number', labelTEmail: 'Email (optional)', labelTNotes: 'Notes (optional)',
+        labelRTenant: 'Tenant', labelRProperty: 'Property', labelRStart: 'Start Date', labelREnd: 'End Date', labelRPrice: 'Monthly Rent (IDR)', labelRStatus: 'Status',
+        optActive: 'Active', optInactive: 'Inactive',
         btnCancel: 'Cancel', btnSave: 'Save',
         required: '❌ Email and password are required', minPass: '❌ Password must be at least 6 characters',
         fillProp: '❌ Please fill name, address and price',
         fillTen: '❌ Please fill name and phone number',
+        fillRent: '❌ Please fill tenant, property, dates and price',
+        needTenProp: '❌ Add a tenant AND a property first!',
         delConfirm: 'Delete this item?',
-        avail: 'Available', rented: 'Rented',
+        avail: 'Available', rented: 'Rented', active: 'Active', inactive: 'Inactive',
         loginError: '❌ Login failed: ',
         resetNeedEmail: '❌ Enter your email first, then tap Forgot Password.',
         resetSent: '✅ Reset link sent. Check your inbox or spam.',
         resetSending: 'Sending...',
         phone: '📱 Phone', email: '📧 Email', notes: '📝 Notes', idNum: '🆔 ID',
-        usdEquiv: '≈'
+        period: '📅 Period'
       },
       id: {
         subtitle: 'Pengelolaan Properti & Penyewa',
         labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnLupa: 'Lupa Password?',
-        tabProp: '🏠 Properti', tabTen: '👥 Penyewa',
-        btnAddProp: '➕ Tambah Properti', btnAddTen: '➕ Tambah Penyewa',
+        tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa',
+        btnAddProp: '➕ Tambah Properti', btnAddTen: '➕ Tambah Penyewa', btnAddRent: '➕ Sewa Baru',
         emptyProp: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
         emptyTen: '📭 Belum ada penyewa.\nKetuk "Tambah Penyewa" untuk mendaftarkan penyewa pertama.',
+        emptyRent: '📭 Belum ada sewa.\nKetuk "Sewa Baru" untuk membuat kontrak.',
         modalAddProp: 'Tambah Properti', modalEditProp: 'Edit Properti',
         modalAddTen: 'Tambah Penyewa', modalEditTen: 'Edit Penyewa',
+        modalAddRent: 'Sewa Baru', modalEditRent: 'Edit Sewa',
         labelPName: 'Nama Properti', labelPAddr: 'Alamat', labelPPrice: 'Sewa per Bulan (IDR)', labelPStatus: 'Status',
         optAvailable: 'Tersedia', optRented: 'Disewa',
         labelTName: 'Nama Lengkap', labelTId: 'No. KTP / Identitas', labelTPhone: 'No. HP', labelTEmail: 'Email (opsional)', labelTNotes: 'Catatan (opsional)',
+        labelRTenant: 'Penyewa', labelRProperty: 'Properti', labelRStart: 'Tanggal Mulai', labelREnd: 'Tanggal Selesai', labelRPrice: 'Sewa per Bulan (IDR)', labelRStatus: 'Status',
+        optActive: 'Aktif', optInactive: 'Selesai',
         btnCancel: 'Batal', btnSave: 'Simpan',
         required: '❌ Email dan kata sandi wajib diisi', minPass: '❌ Kata sandi minimal 6 karakter',
         fillProp: '❌ Isi nama, alamat, dan harga',
         fillTen: '❌ Isi nama dan nomor HP',
+        fillRent: '❌ Isi penyewa, properti, tanggal, dan harga',
+        needTenProp: '❌ Tambahkan penyewa DAN properti dulu!',
         delConfirm: 'Hapus data ini?',
-        avail: 'Tersedia', rented: 'Disewa',
+        avail: 'Tersedia', rented: 'Disewa', active: 'Aktif', inactive: 'Selesai',
         loginError: '❌ Gagal login: ',
         resetNeedEmail: '❌ Masukkan email dulu, lalu ketuk Lupa Password.',
         resetSent: '✅ Link reset terkirim. Cek inbox atau spam.',
         resetSending: 'Mengirim...',
         phone: '📱 HP', email: '📧 Email', notes: '📝 Catatan', idNum: '🆔 KTP',
-        usdEquiv: '≈'
+        period: '📅 Periode'
       }
     };
 
     let currentLang = 'en';
-    let currentCurrency = 'IDR'; // IDR atau USD
+    let currentCurrency = 'IDR';
     const t = () => translations[currentLang];
     let currentUser = null;
-    let unsubProp = null, unsubTen = null;
-    let currentProps = [], currentTenants = [];
-    let editingPropId = null, editingTenId = null;
-    let currentTab = 'prop';
+    let unsubProp = null, unsubTen = null, unsubRent = null;
+    let currentProps = [], currentTenants = [], currentRentals = [];
+    let editingPropId = null, editingTenId = null, editingRentId = null;
 
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
 
-    // Format harga dengan mata uang
     function fmtPrice(idrAmount) {
       const n = Number(idrAmount || 0);
       if (currentCurrency === 'USD') {
-        const usd = n / EXCHANGE_RATE;
-        return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      } else {
-        return 'Rp ' + n.toLocaleString('id-ID');
+        return '$' + (n / EXCHANGE_RATE).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
+      return 'Rp ' + n.toLocaleString('id-ID');
     }
-
-    // Tampilkan ekuivalen mata uang lain
     function fmtEquiv(idrAmount) {
       const n = Number(idrAmount || 0);
-      if (currentCurrency === 'USD') {
-        return '≈ Rp ' + n.toLocaleString('id-ID');
-      } else {
-        const usd = n / EXCHANGE_RATE;
-        return '≈ $' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      }
+      if (currentCurrency === 'USD') return '≈ Rp ' + n.toLocaleString('id-ID');
+      return '≈ $' + (n / EXCHANGE_RATE).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-
-    const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
 
     function setLang(lang) {
       currentLang = lang; const x = translations[lang];
@@ -357,8 +397,10 @@
       document.getElementById('btnLupa').textContent = x.btnLupa;
       document.getElementById('tabProp').textContent = x.tabProp;
       document.getElementById('tabTen').textContent = x.tabTen;
+      document.getElementById('tabRent').textContent = x.tabRent;
       document.getElementById('btnAddProp').textContent = x.btnAddProp;
       document.getElementById('btnAddTen').textContent = x.btnAddTen;
+      document.getElementById('btnAddRent').textContent = x.btnAddRent;
       document.getElementById('labelPName').textContent = x.labelPName;
       document.getElementById('labelPAddr').textContent = x.labelPAddr;
       document.getElementById('labelPPrice').textContent = x.labelPPrice;
@@ -370,10 +412,20 @@
       document.getElementById('labelTPhone').textContent = x.labelTPhone;
       document.getElementById('labelTEmail').textContent = x.labelTEmail;
       document.getElementById('labelTNotes').textContent = x.labelTNotes;
+      document.getElementById('labelRTenant').textContent = x.labelRTenant;
+      document.getElementById('labelRProperty').textContent = x.labelRProperty;
+      document.getElementById('labelRStart').textContent = x.labelRStart;
+      document.getElementById('labelREnd').textContent = x.labelREnd;
+      document.getElementById('labelRPrice').textContent = x.labelRPrice;
+      document.getElementById('labelRStatus').textContent = x.labelRStatus;
+      document.getElementById('optActive').textContent = x.optActive;
+      document.getElementById('optInactive').textContent = x.optInactive;
       document.getElementById('btnCancelProp').textContent = x.btnCancel;
       document.getElementById('btnSaveProp').textContent = x.btnSave;
       document.getElementById('btnCancelTen').textContent = x.btnCancel;
       document.getElementById('btnSaveTen').textContent = x.btnSave;
+      document.getElementById('btnCancelRent').textContent = x.btnCancel;
+      document.getElementById('btnSaveRent').textContent = x.btnSave;
       document.getElementById('btnEN').classList.toggle('active', lang==='en');
       document.getElementById('btnID').classList.toggle('active', lang==='id');
       document.getElementById('btnEN2').classList.toggle('active', lang==='en');
@@ -391,6 +443,15 @@
       renderAll();
     }
 
+    function switchTab(tab) {
+      document.getElementById('tabProp').classList.toggle('active', tab==='prop');
+      document.getElementById('tabTen').classList.toggle('active', tab==='ten');
+      document.getElementById('tabRent').classList.toggle('active', tab==='rent');
+      document.getElementById('viewProp').style.display = tab==='prop' ? 'block' : 'none';
+      document.getElementById('viewTen').style.display = tab==='ten' ? 'block' : 'none';
+      document.getElementById('viewRent').style.display = tab==='rent' ? 'block' : 'none';
+    }
+
     function showMessage(text, type, targetId='message') {
       const m = document.getElementById(targetId);
       if (m) { m.textContent = text; m.className = 'message ' + type; }
@@ -398,14 +459,6 @@
     function clearMessage(targetId='message') {
       const m = document.getElementById(targetId);
       if (m) m.className = 'message';
-    }
-
-    function switchTab(tab) {
-      currentTab = tab;
-      document.getElementById('tabProp').classList.toggle('active', tab==='prop');
-      document.getElementById('tabTen').classList.toggle('active', tab==='ten');
-      document.getElementById('viewProp').style.display = tab==='prop' ? 'block' : 'none';
-      document.getElementById('viewTen').style.display = tab==='ten' ? 'block' : 'none';
     }
 
     async function handleLogin() {
@@ -446,6 +499,7 @@
     function renderAll() {
       renderProps(currentProps);
       renderTenants(currentTenants);
+      renderRentals(currentRentals);
     }
 
     function renderProps(list) {
@@ -463,7 +517,7 @@
           <div class="prop-row">
             <div>
               <div class="price">${fmtPrice(price)}</div>
-              <div class="currency-label">${t().usdEquiv} ${currentCurrency === 'USD' ? 'Rp ' + Number(price).toLocaleString('id-ID') : '$' + (Number(price)/EXCHANGE_RATE).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+              <div class="currency-label">${fmtEquiv(price)}</div>
             </div>
             <span class="badge ${status === 'rented' ? 'rented' : 'available'}">
               ${status === 'rented' ? t().rented : t().avail}
@@ -501,6 +555,37 @@
       }).join('');
     }
 
+    function renderRentals(list) {
+      currentRentals = list; const box = document.getElementById('rentList');
+      if (!list.length) { box.innerHTML = '<div class="empty">' + esc(t().emptyRent).replace(/\n/g,'<br>') + '</div>'; return; }
+      box.innerHTML = list.map(r => {
+        const tenantName = get(r, 'namaPenyewa', 'tenantName');
+        const propName = get(r, 'namaProperti', 'propertyName');
+        const start = get(r, 'mulai', 'start');
+        const end = get(r, 'selesai', 'end');
+        const price = get(r, 'harga', 'price');
+        const status = r.status || 'active';
+        return `
+        <div class="rent-card">
+          <h3>👤 ${esc(tenantName)} → 🏠 ${esc(propName)}</h3>
+          <div class="info">${t().period}: ${esc(start)} s/d ${esc(end)}</div>
+          <div class="prop-row">
+            <div>
+              <div class="price">${fmtPrice(price)}</div>
+              <div class="currency-label">${fmtEquiv(price)}</div>
+            </div>
+            <span class="badge ${status === 'active' ? 'available' : 'inactive'}">
+              ${status === 'active' ? t().active : t().inactive}
+            </span>
+          </div>
+          <div class="rent-actions">
+            <button class="btn btn-primary" onclick="window._editRent('${r.id}')">✏️</button>
+            <button class="btn btn-danger" onclick="window._delRent('${r.id}')">🗑️</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
     window._editProp = id => {
       const p = currentProps.find(x => x.id === id); if (!p) return;
       editingPropId = id; document.getElementById('modalTitleProp').textContent = t().modalEditProp;
@@ -524,11 +609,36 @@
     };
     window._delTen = async id => { if (!confirm(t().delConfirm)) return; await deleteDoc(doc(db, 'tenants', id)); };
 
+    function populateRentSelects() {
+      const ts = document.getElementById('rTenant');
+      const ps = document.getElementById('rProperty');
+      ts.innerHTML = currentTenants.map(p => `<option value="${p.id}">${esc(get(p,'nama','name'))}</option>`).join('');
+      ps.innerHTML = currentProps.map(p => `<option value="${p.id}">${esc(get(p,'nama','name'))} — ${fmtPrice(get(p,'harga','price'))}</option>`).join('');
+    }
+
+    window._editRent = id => {
+      const r = currentRentals.find(x => x.id === id); if (!r) return;
+      populateRentSelects();
+      editingRentId = id;
+      document.getElementById('modalTitleRent').textContent = t().modalEditRent;
+      document.getElementById('rTenant').value = get(r, 'penyewaId', 'tenantId');
+      document.getElementById('rProperty').value = get(r, 'propertiId', 'propertyId');
+      document.getElementById('rStart').value = get(r, 'mulai', 'start');
+      document.getElementById('rEnd').value = get(r, 'selesai', 'end');
+      document.getElementById('rPrice').value = get(r, 'harga', 'price');
+      document.getElementById('rStatus').value = r.status || 'active';
+      openModal('modalRent');
+    };
+    window._delRent = async id => { if (!confirm(t().delConfirm)) return; await deleteDoc(doc(db, 'rentals', id)); };
+
     function openModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModal(id) {
       document.getElementById(id).classList.remove('open');
-      document.getElementById(id==='modalProp'?'modalMsgProp':'modalMsgTen').className = 'message';
-      if (id==='modalProp') editingPropId = null; else editingTenId = null;
+      const msgId = id==='modalProp'?'modalMsgProp':id==='modalTen'?'modalMsgTen':'modalMsgRent';
+      document.getElementById(msgId).className = 'message';
+      if (id==='modalProp') editingPropId = null;
+      else if (id==='modalTen') editingTenId = null;
+      else editingRentId = null;
     }
 
     async function saveProperty() {
@@ -579,55 +689,75 @@
       finally { btn.disabled = false; }
     }
 
+    async function saveRental() {
+      const tenantId = document.getElementById('rTenant').value;
+      const propertyId = document.getElementById('rProperty').value;
+      const start = document.getElementById('rStart').value;
+      const end = document.getElementById('rEnd').value;
+      const price = Number(document.getElementById('rPrice').value);
+      const status = document.getElementById('rStatus').value;
+      const mm = document.getElementById('modalMsgRent');
+      if (!tenantId || !propertyId || !start || !end || !price) { mm.textContent = t().fillRent; mm.className = 'message error'; return; }
+      const tenant = currentTenants.find(x => x.id === tenantId);
+      const prop = currentProps.find(x => x.id === propertyId);
+      if (!tenant || !prop) { mm.textContent = t().needTenProp; mm.className = 'message error'; return; }
+      const btn = document.getElementById('btnSaveRent'); btn.disabled = true;
+      try {
+        const data = {
+          tenantId: tenantId, penyewaId: tenantId,
+          tenantName: get(tenant,'nama','name'), namaPenyewa: get(tenant,'nama','name'),
+          propertyId: propertyId, propertiId: propertyId,
+          propertyName: get(prop,'nama','name'), namaProperti: get(prop,'nama','name'),
+          start: start, mulai: start,
+          end: end, selesai: end,
+          price: price, harga: price,
+          status: status,
+          ownerId: currentUser.uid, 'ID pemilik': currentUser.uid,
+          createdAt: Date.now(), dibuatPada: Date.now()
+        };
+        if (editingRentId) await updateDoc(doc(db, 'rentals', editingRentId), data);
+        else await addDoc(collection(db, 'rentals'), data);
+        // Otomatis tandai properti jadi "Disewa" kalau kontrak aktif
+        if (status === 'active') {
+          try { await updateDoc(doc(db, 'properties', propertyId), { status: 'rented' }); } catch(e) {}
+        }
+        closeModal('modalRent');
+      } catch (e) { mm.textContent = '❌ ' + e.message; mm.className = 'message error'; }
+      finally { btn.disabled = false; }
+    }
+
     function startListening() {
       if (unsubProp) unsubProp();
       if (unsubTen) unsubTen();
+      if (unsubRent) unsubRent();
 
-      const qProp = query(collection(db, 'properties'), where('ownerId', '==', currentUser.uid));
-      unsubProp = onSnapshot(qProp, snap => {
-        if (snap.empty) {
-          const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
-          unsubProp = onSnapshot(q2, snap2 => {
-            const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
-            list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-            renderProps(list);
-          });
-        } else {
+      const listen = (colName, setter, fallbackSetter) => {
+        const q = query(collection(db, colName), where('ownerId', '==', currentUser.uid));
+        return onSnapshot(q, snap => {
+          if (snap.empty) {
+            const q2 = query(collection(db, colName), where('ID pemilik', '==', currentUser.uid));
+            return onSnapshot(q2, snap2 => {
+              const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+              list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
+              setter(list);
+            });
+          }
           const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-          renderProps(list);
-        }
-      }, err => {
-        const q2 = query(collection(db, 'properties'), where('ID pemilik', '==', currentUser.uid));
-        unsubProp = onSnapshot(q2, snap2 => {
-          const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
-          list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-          renderProps(list);
-        });
-      });
-
-      const qTen = query(collection(db, 'tenants'), where('ownerId', '==', currentUser.uid));
-      unsubTen = onSnapshot(qTen, snap => {
-        if (snap.empty) {
-          const q2 = query(collection(db, 'tenants'), where('ID pemilik', '==', currentUser.uid));
-          unsubTen = onSnapshot(q2, snap2 => {
+          setter(list);
+        }, err => {
+          const q2 = query(collection(db, colName), where('ID pemilik', '==', currentUser.uid));
+          return onSnapshot(q2, snap2 => {
             const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
             list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-            renderTenants(list);
+            setter(list);
           });
-        } else {
-          const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-          renderTenants(list);
-        }
-      }, err => {
-        const q2 = query(collection(db, 'tenants'), where('ID pemilik', '==', currentUser.uid));
-        unsubTen = onSnapshot(q2, snap2 => {
-          const list = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
-          list.sort((a, b) => (b.dibuatPada || b.createdAt || 0) - (a.dibuatPada || a.createdAt || 0));
-          renderTenants(list);
         });
-      });
+      };
+
+      unsubProp = listen('properties', renderProps);
+      unsubTen = listen('tenants', renderTenants);
+      unsubRent = listen('rentals', renderRentals);
     }
 
     onAuthStateChanged(auth, user => {
@@ -642,7 +772,8 @@
         document.getElementById('authForm').style.display = 'block';
         if (unsubProp) { unsubProp(); unsubProp = null; }
         if (unsubTen) { unsubTen(); unsubTen = null; }
-        currentProps = []; currentTenants = [];
+        if (unsubRent) { unsubRent(); unsubRent = null; }
+        currentProps = []; currentTenants = []; currentRentals = [];
         clearMessage();
       }
     });
@@ -653,6 +784,7 @@
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
     document.getElementById('tabProp').addEventListener('click', () => switchTab('prop'));
     document.getElementById('tabTen').addEventListener('click', () => switchTab('ten'));
+    document.getElementById('tabRent').addEventListener('click', () => switchTab('rent'));
 
     document.getElementById('btnAddProp').addEventListener('click', () => {
       document.getElementById('modalTitleProp').textContent = t().modalAddProp;
@@ -672,6 +804,27 @@
     });
     document.getElementById('btnCancelTen').addEventListener('click', () => closeModal('modalTen'));
     document.getElementById('btnSaveTen').addEventListener('click', saveTenant);
+
+    document.getElementById('btnAddRent').addEventListener('click', () => {
+      if (!currentTenants.length || !currentProps.length) {
+        showMessage(t().needTenProp, 'error');
+        switchTab(currentProps.length ? 'ten' : 'prop');
+        return;
+      }
+      populateRentSelects();
+      document.getElementById('modalTitleRent').textContent = t().modalAddRent;
+      document.getElementById('rStart').value = ''; document.getElementById('rEnd').value = '';
+      document.getElementById('rPrice').value = ''; document.getElementById('rStatus').value = 'active';
+      const firstProp = currentProps[0];
+      if (firstProp) document.getElementById('rPrice').value = get(firstProp,'harga','price');
+      openModal('modalRent');
+    });
+    document.getElementById('rProperty').addEventListener('change', () => {
+      const prop = currentProps.find(x => x.id === document.getElementById('rProperty').value);
+      if (prop) document.getElementById('rPrice').value = get(prop,'harga','price');
+    });
+    document.getElementById('btnCancelRent').addEventListener('click', () => closeModal('modalRent'));
+    document.getElementById('btnSaveRent').addEventListener('click', saveRental);
 
     document.getElementById('btnEN').addEventListener('click', () => setLang('en'));
     document.getElementById('btnID').addEventListener('click', () => setLang('id'));
