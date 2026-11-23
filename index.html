@@ -16,12 +16,13 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%;
       max-width: 400px; margin: 0 auto; position: relative;
     }
-    .lang-toggle { position: absolute; top: 15px; right: 15px; display: flex; gap: 5px; }
-    .lang-btn {
+    .lang-toggle, .currency-toggle { display: flex; gap: 5px; }
+    .lang-btn, .curr-btn {
       padding: 6px 12px; border: 2px solid #ddd; border-radius: 6px;
       background: white; cursor: pointer; font-size: 13px; font-weight: 600;
     }
-    .lang-btn.active { background: #667eea; color: white; border-color: #667eea; }
+    .lang-btn.active, .curr-btn.active { background: #667eea; color: white; border-color: #667eea; }
+    .top-controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
     h1 { color: #333; text-align: center; margin-bottom: 8px; font-size: 26px; }
     .subtitle { color: #666; text-align: center; margin-bottom: 20px; font-size: 14px; }
     .form-group { margin-bottom: 15px; }
@@ -53,17 +54,14 @@
     }
     .topbar .brand { font-weight: 700; font-size: 18px; color: #333; }
     .topbar .who { font-size: 12px; color: #888; word-break: break-all; flex: 1; min-width: 140px; }
-    .tab-bar {
-      display: flex; gap: 8px; margin-bottom: 15px;
-    }
+    .topbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-btn {
       flex: 1; padding: 12px; border: 2px solid white; border-radius: 10px;
       background: rgba(255,255,255,0.3); color: white; font-weight: 700;
       font-size: 15px; cursor: pointer;
     }
-    .tab-btn.active {
-      background: white; color: #667eea;
-    }
+    .tab-btn.active { background: white; color: #667eea; }
     .add-btn {
       background: #10b981; color: white; border: none; border-radius: 10px;
       padding: 14px 18px; font-size: 16px; font-weight: 700; cursor: pointer;
@@ -84,7 +82,6 @@
     .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
     .badge.available { background: #d1fae5; color: #065f46; }
     .badge.rented { background: #fee2e2; color: #991b1b; }
-    .badge.active { background: #dbeafe; color: #1e40af; }
     .prop-actions, .tenant-actions { display: flex; gap: 8px; margin-top: 12px; }
     .prop-actions .btn, .tenant-actions .btn { padding: 8px 14px; font-size: 14px; }
     .modal {
@@ -108,14 +105,17 @@
     }
     .contact-row { display: flex; gap: 8px; font-size: 13px; color: #555; margin-bottom: 4px; }
     .contact-row span { flex: 1; word-break: break-word; }
+    .currency-label { font-size: 11px; color: #888; margin-top: 4px; text-align: right; }
   </style>
 </head>
 <body>
   <!-- ===== AUTH FORM ===== -->
   <div class="card" id="authForm">
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btnEN">EN</button>
-      <button class="lang-btn" id="btnID">ID</button>
+    <div class="top-controls">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN">EN</button>
+        <button class="lang-btn" id="btnID">ID</button>
+      </div>
     </div>
     <h1>🏠 RentDesk</h1>
     <p class="subtitle" id="subtitle">Property & Tenant Management</p>
@@ -140,26 +140,29 @@
     <div class="topbar">
       <span class="brand">🏠 RentDesk</span>
       <span class="who" id="dashEmail"></span>
-      <div class="lang-toggle" style="position:static;">
-        <button class="lang-btn active" id="btnEN2">EN</button>
-        <button class="lang-btn" id="btnID2">ID</button>
+      <div class="topbar-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="btnEN2">EN</button>
+          <button class="lang-btn" id="btnID2">ID</button>
+        </div>
+        <div class="currency-toggle">
+          <button class="curr-btn active" id="btnIDR">IDR</button>
+          <button class="curr-btn" id="btnUSD">USD</button>
+        </div>
+        <button class="btn btn-danger" id="btnLogout" style="flex:0;padding:8px 14px;font-size:13px;">Sign Out</button>
       </div>
-      <button class="btn btn-danger" id="btnLogout" style="flex:0;padding:8px 14px;font-size:13px;">Sign Out</button>
     </div>
 
-    <!-- TAB BAR -->
     <div class="tab-bar">
-      <button class="tab-btn active" id="tabProp">🏠 Properti</button>
-      <button class="tab-btn" id="tabTen">👥 Penyewa</button>
+      <button class="tab-btn active" id="tabProp">🏠 Properties</button>
+      <button class="tab-btn" id="tabTen">👥 Tenants</button>
     </div>
 
-    <!-- VIEW PROPERTI -->
     <div id="viewProp">
       <button class="add-btn" id="btnAddProp">➕ Add Property</button>
       <div id="propList"></div>
     </div>
 
-    <!-- VIEW PENYEWA -->
     <div id="viewTen" style="display:none;">
       <button class="add-btn" id="btnAddTen">➕ Add Tenant</button>
       <div id="tenantList"></div>
@@ -180,7 +183,7 @@
         <input type="text" id="pAddr" placeholder="Street, city">
       </div>
       <div class="form-group">
-        <label for="pPrice" id="labelPPrice">Monthly Rent (Rp)</label>
+        <label for="pPrice" id="labelPPrice">Monthly Rent (IDR)</label>
         <input type="number" id="pPrice" placeholder="1500000" min="0">
       </div>
       <div class="form-group">
@@ -220,7 +223,7 @@
       </div>
       <div class="form-group">
         <label for="tNotes" id="labelTNotes">Notes (optional)</label>
-        <textarea id="tNotes" placeholder="e.g.喜欢安静, pets allowed, etc."></textarea>
+        <textarea id="tNotes" placeholder="e.g. quiet person, pets allowed"></textarea>
       </div>
       <div class="button-row">
         <button class="btn btn-ghost" id="btnCancelTen">Cancel</button>
@@ -250,6 +253,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Kurs tetap: 1 USD = 15,500 IDR (bisa diubah nanti)
+    const EXCHANGE_RATE = 15500;
+
     const translations = {
       en: {
         subtitle: 'Property & Tenant Management',
@@ -261,7 +267,7 @@
         emptyTen: '📭 No tenants yet.\nTap "Add Tenant" to register your first tenant.',
         modalAddProp: 'Add Property', modalEditProp: 'Edit Property',
         modalAddTen: 'Add Tenant', modalEditTen: 'Edit Tenant',
-        labelPName: 'Property Name', labelPAddr: 'Address', labelPPrice: 'Monthly Rent (Rp)', labelPStatus: 'Status',
+        labelPName: 'Property Name', labelPAddr: 'Address', labelPPrice: 'Monthly Rent (IDR)', labelPStatus: 'Status',
         optAvailable: 'Available', optRented: 'Rented',
         labelTName: 'Full Name', labelTId: 'ID / KTP Number', labelTPhone: 'Phone Number', labelTEmail: 'Email (optional)', labelTNotes: 'Notes (optional)',
         btnCancel: 'Cancel', btnSave: 'Save',
@@ -269,12 +275,13 @@
         fillProp: '❌ Please fill name, address and price',
         fillTen: '❌ Please fill name and phone number',
         delConfirm: 'Delete this item?',
-        avail: 'Available', rented: 'Rented', active: 'Active',
+        avail: 'Available', rented: 'Rented',
         loginError: '❌ Login failed: ',
         resetNeedEmail: '❌ Enter your email first, then tap Forgot Password.',
         resetSent: '✅ Reset link sent. Check your inbox or spam.',
         resetSending: 'Sending...',
-        phone: '📱 Phone', email: '📧 Email', notes: '📝 Notes', idNum: '🆔 ID'
+        phone: '📱 Phone', email: '📧 Email', notes: '📝 Notes', idNum: '🆔 ID',
+        usdEquiv: '≈'
       },
       id: {
         subtitle: 'Pengelolaan Properti & Penyewa',
@@ -286,7 +293,7 @@
         emptyTen: '📭 Belum ada penyewa.\nKetuk "Tambah Penyewa" untuk mendaftarkan penyewa pertama.',
         modalAddProp: 'Tambah Properti', modalEditProp: 'Edit Properti',
         modalAddTen: 'Tambah Penyewa', modalEditTen: 'Edit Penyewa',
-        labelPName: 'Nama Properti', labelPAddr: 'Alamat', labelPPrice: 'Sewa per Bulan (Rp)', labelPStatus: 'Status',
+        labelPName: 'Nama Properti', labelPAddr: 'Alamat', labelPPrice: 'Sewa per Bulan (IDR)', labelPStatus: 'Status',
         optAvailable: 'Tersedia', optRented: 'Disewa',
         labelTName: 'Nama Lengkap', labelTId: 'No. KTP / Identitas', labelTPhone: 'No. HP', labelTEmail: 'Email (opsional)', labelTNotes: 'Catatan (opsional)',
         btnCancel: 'Batal', btnSave: 'Simpan',
@@ -294,16 +301,18 @@
         fillProp: '❌ Isi nama, alamat, dan harga',
         fillTen: '❌ Isi nama dan nomor HP',
         delConfirm: 'Hapus data ini?',
-        avail: 'Tersedia', rented: 'Disewa', active: 'Aktif',
+        avail: 'Tersedia', rented: 'Disewa',
         loginError: '❌ Gagal login: ',
         resetNeedEmail: '❌ Masukkan email dulu, lalu ketuk Lupa Password.',
         resetSent: '✅ Link reset terkirim. Cek inbox atau spam.',
         resetSending: 'Mengirim...',
-        phone: '📱 HP', email: '📧 Email', notes: '📝 Catatan', idNum: '🆔 KTP'
+        phone: '📱 HP', email: '📧 Email', notes: '📝 Catatan', idNum: '🆔 KTP',
+        usdEquiv: '≈'
       }
     };
 
     let currentLang = 'en';
+    let currentCurrency = 'IDR'; // IDR atau USD
     const t = () => translations[currentLang];
     let currentUser = null;
     let unsubProp = null, unsubTen = null;
@@ -312,7 +321,29 @@
     let currentTab = 'prop';
 
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const fmtRp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    // Format harga dengan mata uang
+    function fmtPrice(idrAmount) {
+      const n = Number(idrAmount || 0);
+      if (currentCurrency === 'USD') {
+        const usd = n / EXCHANGE_RATE;
+        return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else {
+        return 'Rp ' + n.toLocaleString('id-ID');
+      }
+    }
+
+    // Tampilkan ekuivalen mata uang lain
+    function fmtEquiv(idrAmount) {
+      const n = Number(idrAmount || 0);
+      if (currentCurrency === 'USD') {
+        return '≈ Rp ' + n.toLocaleString('id-ID');
+      } else {
+        const usd = n / EXCHANGE_RATE;
+        return '≈ $' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    }
+
     const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
 
     function setLang(lang) {
@@ -350,6 +381,13 @@
       document.getElementById('password').placeholder = lang==='en' ? 'Minimum 6 characters' : 'Minimal 6 karakter';
       document.getElementById('email').placeholder = lang==='en' ? 'name@email.com' : 'nama@email.com';
       document.getElementById('tNotes').placeholder = lang==='en' ? 'e.g. quiet person, pets allowed' : 'cth. suka tenang, boleh bawa hewan';
+      renderAll();
+    }
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      document.getElementById('btnIDR').classList.toggle('active', curr==='IDR');
+      document.getElementById('btnUSD').classList.toggle('active', curr==='USD');
       renderAll();
     }
 
@@ -423,7 +461,10 @@
           <h3>${esc(name)}</h3>
           <div class="addr">📍 ${esc(address)}</div>
           <div class="prop-row">
-            <span class="price">${fmtRp(price)}</span>
+            <div>
+              <div class="price">${fmtPrice(price)}</div>
+              <div class="currency-label">${t().usdEquiv} ${currentCurrency === 'USD' ? 'Rp ' + Number(price).toLocaleString('id-ID') : '$' + (Number(price)/EXCHANGE_RATE).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+            </div>
             <span class="badge ${status === 'rented' ? 'rented' : 'available'}">
               ${status === 'rented' ? t().rented : t().avail}
             </span>
@@ -636,6 +677,8 @@
     document.getElementById('btnID').addEventListener('click', () => setLang('id'));
     document.getElementById('btnEN2').addEventListener('click', () => setLang('en'));
     document.getElementById('btnID2').addEventListener('click', () => setLang('id'));
+    document.getElementById('btnIDR').addEventListener('click', () => setCurrency('IDR'));
+    document.getElementById('btnUSD').addEventListener('click', () => setCurrency('USD'));
 
     setLang('en');
   </script>
