@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RentDesk - Property & Tenant Management</title>
+  <title>RentDesk - Global Property & Tenant Management</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -79,6 +79,7 @@
     .prop-card .addr, .tenant-card .info, .rent-card .info { color: #777; font-size: 14px; margin-bottom: 8px; }
     .prop-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .price { color: #667eea; font-weight: 700; font-size: 17px; }
+    .price-usd { color: #10b981; font-weight: 700; font-size: 17px; }
     .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
     .badge.available { background: #d1fae5; color: #065f46; }
     .badge.rented { background: #fee2e2; color: #991b1b; }
@@ -107,6 +108,8 @@
     .contact-row { display: flex; gap: 8px; font-size: 13px; color: #555; margin-bottom: 4px; }
     .contact-row span { flex: 1; word-break: break-word; }
     .currency-label { font-size: 11px; color: #888; margin-top: 4px; text-align: right; }
+    .input-currency-toggle { display: flex; gap: 5px; margin-top: 6px; }
+    .input-currency-toggle .curr-btn { font-size: 12px; padding: 4px 10px; }
   </style>
 </head>
 <body>
@@ -118,7 +121,7 @@
       </div>
     </div>
     <h1>🏠 RentDesk</h1>
-    <p class="subtitle" id="subtitle">Property & Tenant Management</p>
+    <p class="subtitle" id="subtitle">Global Property & Tenant Management</p>
     <div id="message" class="message"></div>
     <div class="form-group">
       <label for="email" id="labelEmail">Email</label>
@@ -145,8 +148,8 @@
           <button class="lang-btn" id="btnID2">ID</button>
         </div>
         <div class="currency-toggle">
-          <button class="curr-btn active" id="btnIDR">IDR</button>
-          <button class="curr-btn" id="btnUSD">USD</button>
+          <button class="curr-btn active" id="btnUSD">USD</button>
+          <button class="curr-btn" id="btnIDR">IDR</button>
         </div>
         <button class="btn btn-danger" id="btnLogout" style="flex:0;padding:8px 14px;font-size:13px;">Sign Out</button>
       </div>
@@ -180,15 +183,19 @@
       <div id="modalMsgProp" class="message"></div>
       <div class="form-group">
         <label for="pName" id="labelPName">Property Name</label>
-        <input type="text" id="pName" placeholder="e.g. kos-kosan melati">
+        <input type="text" id="pName" placeholder="e.g. Melati Apartment">
       </div>
       <div class="form-group">
         <label for="pAddr" id="labelPAddr">Address</label>
-        <input type="text" id="pAddr" placeholder="Street, city">
+        <input type="text" id="pAddr" placeholder="Street, city, country">
       </div>
       <div class="form-group">
-        <label for="pPrice" id="labelPPrice">Monthly Rent (IDR)</label>
-        <input type="number" id="pPrice" placeholder="1500000" min="0">
+        <label for="pPrice" id="labelPPrice">Monthly Rent (USD)</label>
+        <input type="number" id="pPrice" placeholder="100" min="0" step="0.01">
+        <div class="input-currency-toggle">
+          <button class="curr-btn active" id="pCurrUSD">USD</button>
+          <button class="curr-btn" id="pCurrIDR">IDR</button>
+        </div>
       </div>
       <div class="form-group">
         <label for="pStatus" id="labelPStatus">Status</label>
@@ -210,15 +217,15 @@
       <div id="modalMsgTen" class="message"></div>
       <div class="form-group">
         <label for="tName" id="labelTName">Full Name</label>
-        <input type="text" id="tName" placeholder="e.g. Budi Santoso">
+        <input type="text" id="tName" placeholder="e.g. John Doe">
       </div>
       <div class="form-group">
-        <label for="tId" id="labelTId">ID / KTP Number</label>
+        <label for="tId" id="labelTId">ID / Passport Number</label>
         <input type="text" id="tId" placeholder="e.g. 3201234567890001">
       </div>
       <div class="form-group">
         <label for="tPhone" id="labelTPhone">Phone Number</label>
-        <input type="tel" id="tPhone" placeholder="e.g. 08123456789">
+        <input type="tel" id="tPhone" placeholder="e.g. +1234567890">
       </div>
       <div class="form-group">
         <label for="tEmail" id="labelTEmail">Email (optional)</label>
@@ -256,8 +263,12 @@
         <input type="date" id="rEnd">
       </div>
       <div class="form-group">
-        <label for="rPrice" id="labelRPrice">Monthly Rent (IDR)</label>
-        <input type="number" id="rPrice" placeholder="1500000" min="0">
+        <label for="rPrice" id="labelRPrice">Monthly Rent (USD)</label>
+        <input type="number" id="rPrice" placeholder="100" min="0" step="0.01">
+        <div class="input-currency-toggle">
+          <button class="curr-btn active" id="rCurrUSD">USD</button>
+          <button class="curr-btn" id="rCurrIDR">IDR</button>
+        </div>
       </div>
       <div class="form-group">
         <label for="rStatus" id="labelRStatus">Status</label>
@@ -293,11 +304,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const EXCHANGE_RATE = 15500;
+    const EXCHANGE_RATE = 15500; // 1 USD = 15,500 IDR
 
     const translations = {
       en: {
-        subtitle: 'Property & Tenant Management',
+        subtitle: 'Global Property & Tenant Management',
         labelEmail: 'Email', labelPassword: 'Password',
         btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnLupa: 'Forgot Password?',
         tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals',
@@ -308,10 +319,10 @@
         modalAddProp: 'Add Property', modalEditProp: 'Edit Property',
         modalAddTen: 'Add Tenant', modalEditTen: 'Edit Tenant',
         modalAddRent: 'New Rental', modalEditRent: 'Edit Rental',
-        labelPName: 'Property Name', labelPAddr: 'Address', labelPPrice: 'Monthly Rent (IDR)', labelPStatus: 'Status',
+        labelPName: 'Property Name', labelPAddr: 'Address', labelPPrice: 'Monthly Rent (USD)', labelPStatus: 'Status',
         optAvailable: 'Available', optRented: 'Rented',
-        labelTName: 'Full Name', labelTId: 'ID / KTP Number', labelTPhone: 'Phone Number', labelTEmail: 'Email (optional)', labelTNotes: 'Notes (optional)',
-        labelRTenant: 'Tenant', labelRProperty: 'Property', labelRStart: 'Start Date', labelREnd: 'End Date', labelRPrice: 'Monthly Rent (IDR)', labelRStatus: 'Status',
+        labelTName: 'Full Name', labelTId: 'ID / Passport Number', labelTPhone: 'Phone Number', labelTEmail: 'Email (optional)', labelTNotes: 'Notes (optional)',
+        labelRTenant: 'Tenant', labelRProperty: 'Property', labelRStart: 'Start Date', labelREnd: 'End Date', labelRPrice: 'Monthly Rent (USD)', labelRStatus: 'Status',
         optActive: 'Active', optInactive: 'Inactive',
         btnCancel: 'Cancel', btnSave: 'Save',
         required: '❌ Email and password are required', minPass: '❌ Password must be at least 6 characters',
@@ -329,7 +340,7 @@
         period: '📅 Period'
       },
       id: {
-        subtitle: 'Pengelolaan Properti & Penyewa',
+        subtitle: 'Pengelolaan Properti & Penyewa Global',
         labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnLupa: 'Lupa Password?',
         tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa',
@@ -340,10 +351,10 @@
         modalAddProp: 'Tambah Properti', modalEditProp: 'Edit Properti',
         modalAddTen: 'Tambah Penyewa', modalEditTen: 'Edit Penyewa',
         modalAddRent: 'Sewa Baru', modalEditRent: 'Edit Sewa',
-        labelPName: 'Nama Properti', labelPAddr: 'Alamat', labelPPrice: 'Sewa per Bulan (IDR)', labelPStatus: 'Status',
+        labelPName: 'Nama Properti', labelPAddr: 'Alamat', labelPPrice: 'Sewa per Bulan (USD)', labelPStatus: 'Status',
         optAvailable: 'Tersedia', optRented: 'Disewa',
-        labelTName: 'Nama Lengkap', labelTId: 'No. KTP / Identitas', labelTPhone: 'No. HP', labelTEmail: 'Email (opsional)', labelTNotes: 'Catatan (opsional)',
-        labelRTenant: 'Penyewa', labelRProperty: 'Properti', labelRStart: 'Tanggal Mulai', labelREnd: 'Tanggal Selesai', labelRPrice: 'Sewa per Bulan (IDR)', labelRStatus: 'Status',
+        labelTName: 'Nama Lengkap', labelTId: 'No. KTP / Paspor', labelTPhone: 'No. HP', labelTEmail: 'Email (opsional)', labelTNotes: 'Catatan (opsional)',
+        labelRTenant: 'Penyewa', labelRProperty: 'Properti', labelRStart: 'Tanggal Mulai', labelREnd: 'Tanggal Selesai', labelRPrice: 'Sewa per Bulan (USD)', labelRStatus: 'Status',
         optActive: 'Aktif', optInactive: 'Selesai',
         btnCancel: 'Batal', btnSave: 'Simpan',
         required: '❌ Email dan kata sandi wajib diisi', minPass: '❌ Kata sandi minimal 6 karakter',
@@ -363,7 +374,9 @@
     };
 
     let currentLang = 'en';
-    let currentCurrency = 'IDR';
+    let displayCurrency = 'USD'; // Default USD (global)
+    let inputCurrencyProp = 'USD';
+    let inputCurrencyRent = 'USD';
     const t = () => translations[currentLang];
     let currentUser = null;
     let unsubProp = null, unsubTen = null, unsubRent = null;
@@ -373,17 +386,31 @@
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
 
-    function fmtPrice(idrAmount) {
-      const n = Number(idrAmount || 0);
-      if (currentCurrency === 'USD') {
-        return '$' + (n / EXCHANGE_RATE).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      }
-      return 'Rp ' + n.toLocaleString('id-ID');
+    // Konversi ke USD (standar penyimpanan)
+    function toUSD(amount, currency) {
+      const n = Number(amount || 0);
+      return currency === 'IDR' ? n / EXCHANGE_RATE : n;
     }
-    function fmtEquiv(idrAmount) {
-      const n = Number(idrAmount || 0);
-      if (currentCurrency === 'USD') return '≈ Rp ' + n.toLocaleString('id-ID');
-      return '≈ $' + (n / EXCHANGE_RATE).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Format harga untuk tampilan
+    function fmtPrice(usdAmount) {
+      const usd = Number(usdAmount || 0);
+      if (displayCurrency === 'USD') {
+        return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else {
+        const idr = usd * EXCHANGE_RATE;
+        return 'Rp ' + Math.round(idr).toLocaleString('id-ID');
+      }
+    }
+
+    function fmtEquiv(usdAmount) {
+      const usd = Number(usdAmount || 0);
+      if (displayCurrency === 'USD') {
+        const idr = usd * EXCHANGE_RATE;
+        return '≈ Rp ' + Math.round(idr).toLocaleString('id-ID');
+      } else {
+        return '≈ $' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
     }
 
     function setLang(lang) {
@@ -436,11 +463,25 @@
       renderAll();
     }
 
-    function setCurrency(curr) {
-      currentCurrency = curr;
-      document.getElementById('btnIDR').classList.toggle('active', curr==='IDR');
+    function setDisplayCurrency(curr) {
+      displayCurrency = curr;
       document.getElementById('btnUSD').classList.toggle('active', curr==='USD');
+      document.getElementById('btnIDR').classList.toggle('active', curr==='IDR');
       renderAll();
+    }
+
+    function setInputCurrencyProp(curr) {
+      inputCurrencyProp = curr;
+      document.getElementById('pCurrUSD').classList.toggle('active', curr==='USD');
+      document.getElementById('pCurrIDR').classList.toggle('active', curr==='IDR');
+      document.getElementById('labelPPrice').textContent = t().labelPPrice.replace('USD', curr);
+    }
+
+    function setInputCurrencyRent(curr) {
+      inputCurrencyRent = curr;
+      document.getElementById('rCurrUSD').classList.toggle('active', curr==='USD');
+      document.getElementById('rCurrIDR').classList.toggle('active', curr==='IDR');
+      document.getElementById('labelRPrice').textContent = t().labelRPrice.replace('USD', curr);
     }
 
     function switchTab(tab) {
@@ -508,7 +549,7 @@
       box.innerHTML = list.map(p => {
         const name = get(p, 'nama', 'name');
         const address = get(p, 'alamat', 'address');
-        const price = get(p, 'harga', 'price');
+        const priceUSD = get(p, 'hargaUSD', 'priceUSD') || 0;
         const status = p.status || 'available';
         return `
         <div class="prop-card">
@@ -516,8 +557,8 @@
           <div class="addr">📍 ${esc(address)}</div>
           <div class="prop-row">
             <div>
-              <div class="price">${fmtPrice(price)}</div>
-              <div class="currency-label">${fmtEquiv(price)}</div>
+              <div class="price-usd">${fmtPrice(priceUSD)}</div>
+              <div class="currency-label">${fmtEquiv(priceUSD)}</div>
             </div>
             <span class="badge ${status === 'rented' ? 'rented' : 'available'}">
               ${status === 'rented' ? t().rented : t().avail}
@@ -563,7 +604,7 @@
         const propName = get(r, 'namaProperti', 'propertyName');
         const start = get(r, 'mulai', 'start');
         const end = get(r, 'selesai', 'end');
-        const price = get(r, 'harga', 'price');
+        const priceUSD = get(r, 'hargaUSD', 'priceUSD') || 0;
         const status = r.status || 'active';
         return `
         <div class="rent-card">
@@ -571,8 +612,8 @@
           <div class="info">${t().period}: ${esc(start)} s/d ${esc(end)}</div>
           <div class="prop-row">
             <div>
-              <div class="price">${fmtPrice(price)}</div>
-              <div class="currency-label">${fmtEquiv(price)}</div>
+              <div class="price-usd">${fmtPrice(priceUSD)}</div>
+              <div class="currency-label">${fmtEquiv(priceUSD)}</div>
             </div>
             <span class="badge ${status === 'active' ? 'available' : 'inactive'}">
               ${status === 'active' ? t().active : t().inactive}
@@ -591,7 +632,9 @@
       editingPropId = id; document.getElementById('modalTitleProp').textContent = t().modalEditProp;
       document.getElementById('pName').value = get(p, 'nama', 'name');
       document.getElementById('pAddr').value = get(p, 'alamat', 'address');
-      document.getElementById('pPrice').value = get(p, 'harga', 'price');
+      const priceUSD = get(p, 'hargaUSD', 'priceUSD') || 0;
+      document.getElementById('pPrice').value = priceUSD;
+      setInputCurrencyProp('USD');
       document.getElementById('pStatus').value = p.status || 'available';
       openModal('modalProp');
     };
@@ -613,7 +656,10 @@
       const ts = document.getElementById('rTenant');
       const ps = document.getElementById('rProperty');
       ts.innerHTML = currentTenants.map(p => `<option value="${p.id}">${esc(get(p,'nama','name'))}</option>`).join('');
-      ps.innerHTML = currentProps.map(p => `<option value="${p.id}">${esc(get(p,'nama','name'))} — ${fmtPrice(get(p,'harga','price'))}</option>`).join('');
+      ps.innerHTML = currentProps.map(p => {
+        const priceUSD = get(p, 'hargaUSD', 'priceUSD') || 0;
+        return `<option value="${p.id}" data-price="${priceUSD}">${esc(get(p,'nama','name'))} — ${fmtPrice(priceUSD)}</option>`;
+      }).join('');
     }
 
     window._editRent = id => {
@@ -625,7 +671,9 @@
       document.getElementById('rProperty').value = get(r, 'propertiId', 'propertyId');
       document.getElementById('rStart').value = get(r, 'mulai', 'start');
       document.getElementById('rEnd').value = get(r, 'selesai', 'end');
-      document.getElementById('rPrice').value = get(r, 'harga', 'price');
+      const priceUSD = get(r, 'hargaUSD', 'priceUSD') || 0;
+      document.getElementById('rPrice').value = priceUSD;
+      setInputCurrencyRent('USD');
       document.getElementById('rStatus').value = r.status || 'active';
       openModal('modalRent');
     };
@@ -644,15 +692,17 @@
     async function saveProperty() {
       const name = document.getElementById('pName').value.trim();
       const address = document.getElementById('pAddr').value.trim();
-      const price = Number(document.getElementById('pPrice').value);
+      const priceInput = Number(document.getElementById('pPrice').value);
       const status = document.getElementById('pStatus').value;
       const mm = document.getElementById('modalMsgProp');
-      if (!name || !address || !price) { mm.textContent = t().fillProp; mm.className = 'message error'; return; }
+      if (!name || !address || !priceInput) { mm.textContent = t().fillProp; mm.className = 'message error'; return; }
       const btn = document.getElementById('btnSaveProp'); btn.disabled = true;
       try {
+        const priceUSD = toUSD(priceInput, inputCurrencyProp);
         const data = {
           nama: name, name: name, alamat: address, address: address,
-          harga: price, price: price, status: status,
+          hargaUSD: priceUSD, priceUSD: priceUSD,
+          status: status,
           'ID pemilik': currentUser.uid, ownerId: currentUser.uid,
           dibuatPada: Date.now(), createdAt: Date.now()
         };
@@ -694,15 +744,16 @@
       const propertyId = document.getElementById('rProperty').value;
       const start = document.getElementById('rStart').value;
       const end = document.getElementById('rEnd').value;
-      const price = Number(document.getElementById('rPrice').value);
+      const priceInput = Number(document.getElementById('rPrice').value);
       const status = document.getElementById('rStatus').value;
       const mm = document.getElementById('modalMsgRent');
-      if (!tenantId || !propertyId || !start || !end || !price) { mm.textContent = t().fillRent; mm.className = 'message error'; return; }
+      if (!tenantId || !propertyId || !start || !end || !priceInput) { mm.textContent = t().fillRent; mm.className = 'message error'; return; }
       const tenant = currentTenants.find(x => x.id === tenantId);
       const prop = currentProps.find(x => x.id === propertyId);
       if (!tenant || !prop) { mm.textContent = t().needTenProp; mm.className = 'message error'; return; }
       const btn = document.getElementById('btnSaveRent'); btn.disabled = true;
       try {
+        const priceUSD = toUSD(priceInput, inputCurrencyRent);
         const data = {
           tenantId: tenantId, penyewaId: tenantId,
           tenantName: get(tenant,'nama','name'), namaPenyewa: get(tenant,'nama','name'),
@@ -710,14 +761,13 @@
           propertyName: get(prop,'nama','name'), namaProperti: get(prop,'nama','name'),
           start: start, mulai: start,
           end: end, selesai: end,
-          price: price, harga: price,
+          hargaUSD: priceUSD, priceUSD: priceUSD,
           status: status,
           ownerId: currentUser.uid, 'ID pemilik': currentUser.uid,
           createdAt: Date.now(), dibuatPada: Date.now()
         };
         if (editingRentId) await updateDoc(doc(db, 'rentals', editingRentId), data);
         else await addDoc(collection(db, 'rentals'), data);
-        // Otomatis tandai properti jadi "Disewa" kalau kontrak aktif
         if (status === 'active') {
           try { await updateDoc(doc(db, 'properties', propertyId), { status: 'rented' }); } catch(e) {}
         }
@@ -731,7 +781,7 @@
       if (unsubTen) unsubTen();
       if (unsubRent) unsubRent();
 
-      const listen = (colName, setter, fallbackSetter) => {
+      const listen = (colName, setter) => {
         const q = query(collection(db, colName), where('ownerId', '==', currentUser.uid));
         return onSnapshot(q, snap => {
           if (snap.empty) {
@@ -789,7 +839,9 @@
     document.getElementById('btnAddProp').addEventListener('click', () => {
       document.getElementById('modalTitleProp').textContent = t().modalAddProp;
       document.getElementById('pName').value = ''; document.getElementById('pAddr').value = '';
-      document.getElementById('pPrice').value = ''; document.getElementById('pStatus').value = 'available';
+      document.getElementById('pPrice').value = '';
+      setInputCurrencyProp('USD');
+      document.getElementById('pStatus').value = 'available';
       openModal('modalProp');
     });
     document.getElementById('btnCancelProp').addEventListener('click', () => closeModal('modalProp'));
@@ -814,14 +866,22 @@
       populateRentSelects();
       document.getElementById('modalTitleRent').textContent = t().modalAddRent;
       document.getElementById('rStart').value = ''; document.getElementById('rEnd').value = '';
-      document.getElementById('rPrice').value = ''; document.getElementById('rStatus').value = 'active';
+      document.getElementById('rPrice').value = '';
+      setInputCurrencyRent('USD');
+      document.getElementById('rStatus').value = 'active';
       const firstProp = currentProps[0];
-      if (firstProp) document.getElementById('rPrice').value = get(firstProp,'harga','price');
+      if (firstProp) {
+        const priceUSD = get(firstProp, 'hargaUSD', 'priceUSD') || 0;
+        document.getElementById('rPrice').value = priceUSD;
+      }
       openModal('modalRent');
     });
     document.getElementById('rProperty').addEventListener('change', () => {
       const prop = currentProps.find(x => x.id === document.getElementById('rProperty').value);
-      if (prop) document.getElementById('rPrice').value = get(prop,'harga','price');
+      if (prop) {
+        const priceUSD = get(prop, 'hargaUSD', 'priceUSD') || 0;
+        document.getElementById('rPrice').value = priceUSD;
+      }
     });
     document.getElementById('btnCancelRent').addEventListener('click', () => closeModal('modalRent'));
     document.getElementById('btnSaveRent').addEventListener('click', saveRental);
@@ -830,8 +890,12 @@
     document.getElementById('btnID').addEventListener('click', () => setLang('id'));
     document.getElementById('btnEN2').addEventListener('click', () => setLang('en'));
     document.getElementById('btnID2').addEventListener('click', () => setLang('id'));
-    document.getElementById('btnIDR').addEventListener('click', () => setCurrency('IDR'));
-    document.getElementById('btnUSD').addEventListener('click', () => setCurrency('USD'));
+    document.getElementById('btnUSD').addEventListener('click', () => setDisplayCurrency('USD'));
+    document.getElementById('btnIDR').addEventListener('click', () => setDisplayCurrency('IDR'));
+    document.getElementById('pCurrUSD').addEventListener('click', () => setInputCurrencyProp('USD'));
+    document.getElementById('pCurrIDR').addEventListener('click', () => setInputCurrencyProp('IDR'));
+    document.getElementById('rCurrUSD').addEventListener('click', () => setInputCurrencyRent('USD'));
+    document.getElementById('rCurrIDR').addEventListener('click', () => setInputCurrencyRent('IDR'));
 
     setLang('en');
   </script>
