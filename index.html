@@ -64,6 +64,25 @@
     .currency-label { font-size: 11px; color: #888; margin-top: 4px; text-align: right; }
     .input-currency-toggle { display: flex; gap: 5px; margin-top: 6px; }
     .input-currency-toggle .curr-btn { font-size: 12px; padding: 4px 10px; }
+    /* Dashboard Analytics Styles */
+    .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+    .stat-card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 5px 15px rgba(0,0,0,0.12); text-align: center; }
+    .stat-card .stat-icon { font-size: 32px; margin-bottom: 8px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 800; color: #667eea; margin-bottom: 4px; }
+    .stat-card .stat-label { font-size: 12px; color: #777; font-weight: 600; text-transform: uppercase; }
+    .stat-card.highlight { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .stat-card.highlight .stat-value { color: white; }
+    .stat-card.highlight .stat-label { color: rgba(255,255,255,0.9); }
+    .insight-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.12); }
+    .insight-card h3 { color: #333; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .progress-bar { background: #eee; border-radius: 10px; height: 12px; overflow: hidden; margin: 10px 0; }
+    .progress-fill { background: linear-gradient(90deg, #10b981, #059669); height: 100%; transition: width 0.5s ease; }
+    .unpaid-item { background: #fff5f5; border-left: 4px solid #e74c3c; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .unpaid-item .name { font-weight: 700; color: #333; margin-bottom: 4px; }
+    .unpaid-item .detail { font-size: 13px; color: #777; }
+    .welcome-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.12); }
+    .welcome-card h2 { color: #333; font-size: 20px; margin-bottom: 6px; }
+    .welcome-card p { color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -110,13 +129,58 @@
     </div>
 
     <div class="tab-bar">
-      <button class="tab-btn active" id="tabProp">🏠 Properties</button>
+      <button class="tab-btn active" id="tabDash">📊 Dashboard</button>
+      <button class="tab-btn" id="tabProp">🏠 Properties</button>
       <button class="tab-btn" id="tabTen">👥 Tenants</button>
       <button class="tab-btn" id="tabRent">📄 Rentals</button>
       <button class="tab-btn" id="tabPay">💰 Payments</button>
     </div>
 
-    <div id="viewProp">
+    <!-- DASHBOARD VIEW -->
+    <div id="viewDash">
+      <div class="welcome-card">
+        <h2 id="welcomeTitle">Welcome back!</h2>
+        <p id="welcomeSubtitle">Here's your business overview for this month.</p>
+      </div>
+      <div class="dash-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🏠</div>
+          <div class="stat-value" id="statProps">0</div>
+          <div class="stat-label" id="labelStatProps">Properties</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="statTens">0</div>
+          <div class="stat-label" id="labelStatTens">Tenants</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-value" id="statRents">0</div>
+          <div class="stat-label" id="labelStatRents">Active Rentals</div>
+        </div>
+        <div class="stat-card highlight">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="statIncome">$0</div>
+          <div class="stat-label" id="labelStatIncome">Income This Month</div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <h3>📈 <span id="labelOccupancy">Occupancy Rate</span></h3>
+        <div class="progress-bar">
+          <div class="progress-fill" id="occupancyFill" style="width: 0%;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#666;">
+          <span id="occupancyText">0% occupied</span>
+          <span id="occupancyDetail">0 of 0 properties</span>
+        </div>
+      </div>
+      <div class="insight-card">
+        <h3>⚠️ <span id="labelUnpaid">Unpaid This Month</span></h3>
+        <div id="unpaidList"></div>
+      </div>
+    </div>
+
+    <div id="viewProp" style="display:none;">
       <button class="add-btn" id="btnAddProp">➕ Add Property</button>
       <div id="propList"></div>
     </div>
@@ -142,33 +206,11 @@
     <div class="modal-box">
       <h2 id="modalTitleProp">Add Property</h2>
       <div id="modalMsgProp" class="message"></div>
-      <div class="form-group">
-        <label for="pName" id="labelPName">Property Name</label>
-        <input type="text" id="pName" placeholder="e.g. Melati Apartment">
-      </div>
-      <div class="form-group">
-        <label for="pAddr" id="labelPAddr">Address</label>
-        <input type="text" id="pAddr" placeholder="Street, city, country">
-      </div>
-      <div class="form-group">
-        <label for="pPrice" id="labelPPrice">Monthly Rent (USD)</label>
-        <input type="number" id="pPrice" placeholder="100" min="0" step="0.01">
-        <div class="input-currency-toggle">
-          <button class="curr-btn active" id="pCurrUSD">USD</button>
-          <button class="curr-btn" id="pCurrIDR">IDR</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="pStatus" id="labelPStatus">Status</label>
-        <select id="pStatus">
-          <option value="available" id="optAvailable">Available</option>
-          <option value="rented" id="optRented">Rented</option>
-        </select>
-      </div>
-      <div class="button-row">
-        <button class="btn btn-ghost" id="btnCancelProp">Cancel</button>
-        <button class="btn btn-success" id="btnSaveProp">Save</button>
-      </div>
+      <div class="form-group"><label for="pName" id="labelPName">Property Name</label><input type="text" id="pName"></div>
+      <div class="form-group"><label for="pAddr" id="labelPAddr">Address</label><input type="text" id="pAddr"></div>
+      <div class="form-group"><label for="pPrice" id="labelPPrice">Monthly Rent (USD)</label><input type="number" id="pPrice" min="0" step="0.01"><div class="input-currency-toggle"><button class="curr-btn active" id="pCurrUSD">USD</button><button class="curr-btn" id="pCurrIDR">IDR</button></div></div>
+      <div class="form-group"><label for="pStatus" id="labelPStatus">Status</label><select id="pStatus"><option value="available" id="optAvailable">Available</option><option value="rented" id="optRented">Rented</option></select></div>
+      <div class="button-row"><button class="btn btn-ghost" id="btnCancelProp">Cancel</button><button class="btn btn-success" id="btnSaveProp">Save</button></div>
     </div>
   </div>
 
@@ -177,30 +219,12 @@
     <div class="modal-box">
       <h2 id="modalTitleTen">Add Tenant</h2>
       <div id="modalMsgTen" class="message"></div>
-      <div class="form-group">
-        <label for="tName" id="labelTName">Full Name</label>
-        <input type="text" id="tName" placeholder="e.g. John Doe">
-      </div>
-      <div class="form-group">
-        <label for="tId" id="labelTId">ID / Passport Number</label>
-        <input type="text" id="tId" placeholder="e.g. 3201234567890001">
-      </div>
-      <div class="form-group">
-        <label for="tPhone" id="labelTPhone">Phone Number</label>
-        <input type="tel" id="tPhone" placeholder="e.g. +1234567890">
-      </div>
-      <div class="form-group">
-        <label for="tEmail" id="labelTEmail">Email (optional)</label>
-        <input type="email" id="tEmail" placeholder="tenant@email.com">
-      </div>
-      <div class="form-group">
-        <label for="tNotes" id="labelTNotes">Notes (optional)</label>
-        <textarea id="tNotes" placeholder="e.g. quiet person, pets allowed"></textarea>
-      </div>
-      <div class="button-row">
-        <button class="btn btn-ghost" id="btnCancelTen">Cancel</button>
-        <button class="btn btn-success" id="btnSaveTen">Save</button>
-      </div>
+      <div class="form-group"><label for="tName" id="labelTName">Full Name</label><input type="text" id="tName"></div>
+      <div class="form-group"><label for="tId" id="labelTId">ID / Passport Number</label><input type="text" id="tId"></div>
+      <div class="form-group"><label for="tPhone" id="labelTPhone">Phone Number</label><input type="tel" id="tPhone"></div>
+      <div class="form-group"><label for="tEmail" id="labelTEmail">Email (optional)</label><input type="email" id="tEmail"></div>
+      <div class="form-group"><label for="tNotes" id="labelTNotes">Notes (optional)</label><textarea id="tNotes"></textarea></div>
+      <div class="button-row"><button class="btn btn-ghost" id="btnCancelTen">Cancel</button><button class="btn btn-success" id="btnSaveTen">Save</button></div>
     </div>
   </div>
 
@@ -209,41 +233,13 @@
     <div class="modal-box">
       <h2 id="modalTitleRent">New Rental</h2>
       <div id="modalMsgRent" class="message"></div>
-      <div class="form-group">
-        <label for="rTenant" id="labelRTenant">Tenant</label>
-        <select id="rTenant"></select>
-      </div>
-      <div class="form-group">
-        <label for="rProperty" id="labelRProperty">Property</label>
-        <select id="rProperty"></select>
-      </div>
-      <div class="form-group">
-        <label for="rStart" id="labelRStart">Start Date</label>
-        <input type="date" id="rStart">
-      </div>
-      <div class="form-group">
-        <label for="rEnd" id="labelREnd">End Date</label>
-        <input type="date" id="rEnd">
-      </div>
-      <div class="form-group">
-        <label for="rPrice" id="labelRPrice">Monthly Rent (USD)</label>
-        <input type="number" id="rPrice" placeholder="100" min="0" step="0.01">
-        <div class="input-currency-toggle">
-          <button class="curr-btn active" id="rCurrUSD">USD</button>
-          <button class="curr-btn" id="rCurrIDR">IDR</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="rStatus" id="labelRStatus">Status</label>
-        <select id="rStatus">
-          <option value="active" id="optActive">Active</option>
-          <option value="inactive" id="optInactive">Inactive</option>
-        </select>
-      </div>
-      <div class="button-row">
-        <button class="btn btn-ghost" id="btnCancelRent">Cancel</button>
-        <button class="btn btn-success" id="btnSaveRent">Save</button>
-      </div>
+      <div class="form-group"><label for="rTenant" id="labelRTenant">Tenant</label><select id="rTenant"></select></div>
+      <div class="form-group"><label for="rProperty" id="labelRProperty">Property</label><select id="rProperty"></select></div>
+      <div class="form-group"><label for="rStart" id="labelRStart">Start Date</label><input type="date" id="rStart"></div>
+      <div class="form-group"><label for="rEnd" id="labelREnd">End Date</label><input type="date" id="rEnd"></div>
+      <div class="form-group"><label for="rPrice" id="labelRPrice">Monthly Rent (USD)</label><input type="number" id="rPrice" min="0" step="0.01"><div class="input-currency-toggle"><button class="curr-btn active" id="rCurrUSD">USD</button><button class="curr-btn" id="rCurrIDR">IDR</button></div></div>
+      <div class="form-group"><label for="rStatus" id="labelRStatus">Status</label><select id="rStatus"><option value="active" id="optActive">Active</option><option value="inactive" id="optInactive">Inactive</option></select></div>
+      <div class="button-row"><button class="btn btn-ghost" id="btnCancelRent">Cancel</button><button class="btn btn-success" id="btnSaveRent">Save</button></div>
     </div>
   </div>
 
@@ -252,38 +248,12 @@
     <div class="modal-box">
       <h2 id="modalTitlePay">Record Payment</h2>
       <div id="modalMsgPay" class="message"></div>
-      <div class="form-group">
-        <label for="payRental" id="labelPayRental">Rental Contract</label>
-        <select id="payRental"></select>
-      </div>
-      <div class="form-group">
-        <label for="payMonth" id="labelPayMonth">Month Paid For</label>
-        <input type="month" id="payMonth">
-      </div>
-      <div class="form-group">
-        <label for="payAmount" id="labelPayAmount">Amount Paid (USD)</label>
-        <input type="number" id="payAmount" placeholder="100" min="0" step="0.01">
-        <div class="input-currency-toggle">
-          <button class="curr-btn active" id="payCurrUSD">USD</button>
-          <button class="curr-btn" id="payCurrIDR">IDR</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="payDate" id="labelPayDate">Payment Date</label>
-        <input type="date" id="payDate">
-      </div>
-      <div class="form-group">
-        <label for="payMethod" id="labelPayMethod">Method</label>
-        <select id="payMethod">
-          <option value="transfer" id="optTransfer">Bank Transfer</option>
-          <option value="cash" id="optCash">Cash</option>
-          <option value="ewallet" id="optEwallet">E-Wallet</option>
-        </select>
-      </div>
-      <div class="button-row">
-        <button class="btn btn-ghost" id="btnCancelPay">Cancel</button>
-        <button class="btn btn-success" id="btnSavePay">Save</button>
-      </div>
+      <div class="form-group"><label for="payRental" id="labelPayRental">Rental Contract</label><select id="payRental"></select></div>
+      <div class="form-group"><label for="payMonth" id="labelPayMonth">Month Paid For</label><input type="month" id="payMonth"></div>
+      <div class="form-group"><label for="payAmount" id="labelPayAmount">Amount Paid (USD)</label><input type="number" id="payAmount" min="0" step="0.01"><div class="input-currency-toggle"><button class="curr-btn active" id="payCurrUSD">USD</button><button class="curr-btn" id="payCurrIDR">IDR</button></div></div>
+      <div class="form-group"><label for="payDate" id="labelPayDate">Payment Date</label><input type="date" id="payDate"></div>
+      <div class="form-group"><label for="payMethod" id="labelPayMethod">Method</label><select id="payMethod"><option value="transfer" id="optTransfer">Bank Transfer</option><option value="cash" id="optCash">Cash</option><option value="ewallet" id="optEwallet">E-Wallet</option></select></div>
+      <div class="button-row"><button class="btn btn-ghost" id="btnCancelPay">Cancel</button><button class="btn btn-success" id="btnSavePay">Save</button></div>
     </div>
   </div>
 
@@ -312,7 +282,7 @@
         subtitle: 'Global Property & Tenant Management',
         labelEmail: 'Email', labelPassword: 'Password',
         btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnLupa: 'Forgot Password?',
-        tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals', tabPay: '💰 Payments',
+        tabDash: '📊 Dashboard', tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals', tabPay: '💰 Payments',
         btnAddProp: '➕ Add Property', btnAddTen: '➕ Add Tenant', btnAddRent: '➕ New Rental', btnAddPay: '➕ Record Payment',
         emptyProp: '📭 No properties yet.\nTap "Add Property" to create your first one.',
         emptyTen: '📭 No tenants yet.\nTap "Add Tenant" to register your first tenant.',
@@ -344,13 +314,25 @@
         resetSent: '✅ Reset link sent. Check your inbox or spam.',
         resetSending: 'Sending...',
         phone: '📱 Phone', email: '📧 Email', notes: '📝 Notes', idNum: '🆔 ID',
-        period: '📅 Period', method: '💳 Method'
+        period: '📅 Period', method: '💳 Method',
+        // Dashboard translations
+        welcomeTitle: 'Welcome back!',
+        welcomeSubtitle: "Here's your business overview for this month.",
+        labelStatProps: 'Properties',
+        labelStatTens: 'Tenants',
+        labelStatRents: 'Active Rentals',
+        labelStatIncome: 'Income This Month',
+        labelOccupancy: 'Occupancy Rate',
+        labelUnpaid: 'Unpaid This Month',
+        noUnpaid: '✅ All active rentals are paid this month!',
+        occupiedText: '% occupied',
+        ofText: 'of'
       },
       id: {
         subtitle: 'Pengelolaan Properti & Penyewa Global',
         labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnLupa: 'Lupa Password?',
-        tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa', tabPay: '💰 Pembayaran',
+        tabDash: '📊 Dashboard', tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa', tabPay: '💰 Pembayaran',
         btnAddProp: '➕ Tambah Properti', btnAddTen: '➕ Tambah Penyewa', btnAddRent: '➕ Sewa Baru', btnAddPay: '➕ Catat Pembayaran',
         emptyProp: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
         emptyTen: '📭 Belum ada penyewa.\nKetuk "Tambah Penyewa" untuk mendaftarkan penyewa pertama.',
@@ -382,7 +364,18 @@
         resetSent: '✅ Link reset terkirim. Cek inbox atau spam.',
         resetSending: 'Mengirim...',
         phone: '📱 HP', email: '📧 Email', notes: '📝 Catatan', idNum: '🆔 KTP',
-        period: '📅 Periode', method: '💳 Metode'
+        period: '📅 Periode', method: '💳 Metode',
+        welcomeTitle: 'Selamat datang kembali!',
+        welcomeSubtitle: 'Berikut ringkasan bisnis Anda bulan ini.',
+        labelStatProps: 'Properti',
+        labelStatTens: 'Penyewa',
+        labelStatRents: 'Sewa Aktif',
+        labelStatIncome: 'Pendapatan Bulan Ini',
+        labelOccupancy: 'Tingkat Hunian',
+        labelUnpaid: 'Belum Dibayar Bulan Ini',
+        noUnpaid: '✅ Semua sewa aktif sudah dibayar bulan ini!',
+        occupiedText: '% terisi',
+        ofText: 'dari'
       }
     };
 
@@ -417,6 +410,13 @@
       return '≈ $' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    function getCurrentMonth() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      return `${y}-${m}`;
+    }
+
     function setLang(lang) {
       currentLang = lang; const x = translations[lang];
       document.getElementById('subtitle').textContent = x.subtitle;
@@ -426,6 +426,7 @@
       document.getElementById('btnDaftar').textContent = x.btnDaftar;
       document.getElementById('btnLogout').textContent = x.btnLogout;
       document.getElementById('btnLupa').textContent = x.btnLupa;
+      document.getElementById('tabDash').textContent = x.tabDash;
       document.getElementById('tabProp').textContent = x.tabProp;
       document.getElementById('tabTen').textContent = x.tabTen;
       document.getElementById('tabRent').textContent = x.tabRent;
@@ -469,6 +470,15 @@
       document.getElementById('btnSaveRent').textContent = x.btnSave;
       document.getElementById('btnCancelPay').textContent = x.btnCancel;
       document.getElementById('btnSavePay').textContent = x.btnSave;
+      // Dashboard labels
+      document.getElementById('welcomeTitle').textContent = x.welcomeTitle;
+      document.getElementById('welcomeSubtitle').textContent = x.welcomeSubtitle;
+      document.getElementById('labelStatProps').textContent = x.labelStatProps;
+      document.getElementById('labelStatTens').textContent = x.labelStatTens;
+      document.getElementById('labelStatRents').textContent = x.labelStatRents;
+      document.getElementById('labelStatIncome').textContent = x.labelStatIncome;
+      document.getElementById('labelOccupancy').textContent = x.labelOccupancy;
+      document.getElementById('labelUnpaid').textContent = x.labelUnpaid;
       document.getElementById('btnEN').classList.toggle('active', lang==='en');
       document.getElementById('btnID').classList.toggle('active', lang==='id');
       document.getElementById('btnEN2').classList.toggle('active', lang==='en');
@@ -491,14 +501,17 @@
     function setInputCurrencyPay(curr) { inputCurrencyPay = curr; document.getElementById('payCurrUSD').classList.toggle('active', curr==='USD'); document.getElementById('payCurrIDR').classList.toggle('active', curr==='IDR'); }
 
     function switchTab(tab) {
+      document.getElementById('tabDash').classList.toggle('active', tab==='dash');
       document.getElementById('tabProp').classList.toggle('active', tab==='prop');
       document.getElementById('tabTen').classList.toggle('active', tab==='ten');
       document.getElementById('tabRent').classList.toggle('active', tab==='rent');
       document.getElementById('tabPay').classList.toggle('active', tab==='pay');
+      document.getElementById('viewDash').style.display = tab==='dash' ? 'block' : 'none';
       document.getElementById('viewProp').style.display = tab==='prop' ? 'block' : 'none';
       document.getElementById('viewTen').style.display = tab==='ten' ? 'block' : 'none';
       document.getElementById('viewRent').style.display = tab==='rent' ? 'block' : 'none';
       document.getElementById('viewPay').style.display = tab==='pay' ? 'block' : 'none';
+      if (tab === 'dash') renderDashboard();
     }
 
     function showMessage(text, type, targetId='message') {
@@ -542,7 +555,53 @@
       finally { btn.textContent = oldText; btn.style.pointerEvents = 'auto'; }
     }
 
-    function renderAll() { renderProps(currentProps); renderTenants(currentTenants); renderRentals(currentRentals); renderPayments(currentPayments); }
+    function renderAll() { renderProps(currentProps); renderTenants(currentTenants); renderRentals(currentRentals); renderPayments(currentPayments); renderDashboard(); }
+
+    function renderDashboard() {
+      const x = t();
+      // Stats
+      document.getElementById('statProps').textContent = currentProps.length;
+      document.getElementById('statTens').textContent = currentTenants.length;
+      const activeRentals = currentRentals.filter(r => r.status === 'active');
+      document.getElementById('statRents').textContent = activeRentals.length;
+      
+      // Income this month
+      const currentMonth = getCurrentMonth();
+      const thisMonthPayments = currentPayments.filter(p => get(p, 'bulan', 'month') === currentMonth);
+      const totalIncomeUSD = thisMonthPayments.reduce((sum, p) => sum + (get(p, 'jumlahUSD', 'amountUSD') || 0), 0);
+      document.getElementById('statIncome').textContent = fmtPrice(totalIncomeUSD);
+      
+      // Occupancy rate
+      const totalProps = currentProps.length;
+      const rentedProps = currentProps.filter(p => p.status === 'rented').length;
+      const occupancyRate = totalProps > 0 ? Math.round((rentedProps / totalProps) * 100) : 0;
+      document.getElementById('occupancyFill').style.width = occupancyRate + '%';
+      document.getElementById('occupancyText').textContent = occupancyRate + x.occupiedText;
+      document.getElementById('occupancyDetail').textContent = rentedProps + ' ' + x.ofText + ' ' + totalProps;
+      
+      // Unpaid this month
+      const unpaidList = document.getElementById('unpaidList');
+      const unpaidRentals = activeRentals.filter(r => {
+        const paidMonths = currentPayments
+          .filter(p => get(p, 'sewaId', 'rentalId') === r.id)
+          .map(p => get(p, 'bulan', 'month'));
+        return !paidMonths.includes(currentMonth);
+      });
+      
+      if (unpaidRentals.length === 0) {
+        unpaidList.innerHTML = '<div style="text-align:center; padding:20px; color:#059669; font-weight:600;">' + x.noUnpaid + '</div>';
+      } else {
+        unpaidList.innerHTML = unpaidRentals.map(r => {
+          const tenantName = get(r, 'namaPenyewa', 'tenantName');
+          const propName = get(r, 'namaProperti', 'propertyName');
+          const priceUSD = get(r, 'hargaUSD', 'priceUSD') || 0;
+          return `<div class="unpaid-item">
+            <div class="name">👤 ${esc(tenantName)} → 🏠 ${esc(propName)}</div>
+            <div class="detail">${fmtPrice(priceUSD)} • ${currentMonth}</div>
+          </div>`;
+        }).join('');
+      }
+    }
 
     function renderProps(list) {
       currentProps = list; const box = document.getElementById('propList');
@@ -598,7 +657,6 @@
         const propName = get(p, 'namaProperti', 'propertyName');
         const month = get(p, 'bulan', 'month');
         const amountUSD = get(p, 'jumlahUSD', 'amountUSD') || 0;
-        const date = get(p, 'tanggal', 'date');
         const method = get(p, 'metode', 'method');
         const methodLabel = method === 'cash' ? t().optCash : method === 'ewallet' ? t().optEwallet : t().optTransfer;
         return `<div class="pay-card"><h3>💰 ${esc(tenantName)} - ${esc(propName)}</h3>
@@ -830,6 +888,7 @@
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('dashEmail').textContent = user.email;
         startListening();
+        switchTab('dash');
       } else {
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('authForm').style.display = 'block';
@@ -844,6 +903,7 @@
     document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
     document.getElementById('btnLupa').addEventListener('click', (e) => { e.preventDefault(); handleReset(); });
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+    document.getElementById('tabDash').addEventListener('click', () => switchTab('dash'));
     document.getElementById('tabProp').addEventListener('click', () => switchTab('prop'));
     document.getElementById('tabTen').addEventListener('click', () => switchTab('ten'));
     document.getElementById('tabRent').addEventListener('click', () => switchTab('rent'));
@@ -889,7 +949,7 @@
       if (activeRentals.length === 0) { showMessage(t().needRental, 'error'); switchTab('rent'); return; }
       populatePaySelects();
       document.getElementById('modalTitlePay').textContent = t().modalAddPay;
-      document.getElementById('payMonth').value = ''; document.getElementById('payDate').value = '';
+      document.getElementById('payMonth').value = getCurrentMonth(); document.getElementById('payDate').value = '';
       document.getElementById('payAmount').value = ''; setInputCurrencyPay('USD');
       document.getElementById('payMethod').value = 'transfer';
       const firstRental = activeRentals[0];
