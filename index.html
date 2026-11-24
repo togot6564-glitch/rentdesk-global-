@@ -7,245 +7,144 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh; padding: 20px;
-      color: #1a202c;
-    }
-    .card {
-      background: white; padding: 32px; border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%;
-      max-width: 420px; margin: 0 auto; position: relative;
-    }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #1a202c; }
+    .card { background: white; padding: 32px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 420px; margin: 0 auto; position: relative; }
     .lang-toggle, .currency-toggle { display: flex; gap: 6px; }
-    .lang-btn, .curr-btn {
-      padding: 8px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
-      background: white; cursor: pointer; font-size: 13px; font-weight: 600;
-      transition: all 0.2s ease; color: #4a5568;
-    }
+    .lang-btn, .curr-btn { padding: 8px 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s ease; color: #4a5568; }
     .lang-btn:hover, .curr-btn:hover { border-color: #667eea; color: #667eea; }
-    .lang-btn.active, .curr-btn.active {
-      background: #667eea; color: white; border-color: #667eea;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
+    .lang-btn.active, .curr-btn.active { background: #667eea; color: white; border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
     .top-controls { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-    
-    /* Logo RentDesk Profesional */
     .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
-    .logo-icon {
-      width: 48px; height: 48px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-    }
+    .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
     .logo-icon svg { width: 28px; height: 28px; }
     .logo-text { font-size: 28px; font-weight: 800; color: #1a202c; letter-spacing: -0.5px; }
     .logo-text span { color: #667eea; }
-    
     h1 { color: #1a202c; text-align: center; margin-bottom: 8px; font-size: 26px; }
     .subtitle { color: #718096; text-align: center; margin-bottom: 24px; font-size: 14px; font-weight: 500; }
     .form-group { margin-bottom: 16px; }
     label { display: block; margin-bottom: 8px; color: #2d3748; font-weight: 600; font-size: 14px; }
-    input, select, textarea {
-      width: 100%; padding: 14px; border: 2px solid #e2e8f0;
-      border-radius: 10px; font-size: 16px; background: #f7fafc; font-family: inherit;
-      transition: all 0.2s ease; color: #1a202c;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none; border-color: #667eea; background: white;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
+    input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; background: #f7fafc; font-family: inherit; transition: all 0.2s ease; color: #1a202c; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
     textarea { min-height: 80px; resize: vertical; }
     .button-row { display: flex; gap: 12px; margin-top: 24px; }
-    .btn {
-      flex: 1; padding: 14px; border: none; border-radius: 10px;
-      font-size: 16px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease;
-    }
+    .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
     .btn:active { transform: translateY(0); }
     .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
     .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
     .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
     .btn-ghost { background: #f1f5f9; color: #475569; }
+    .btn-sm { padding: 8px 12px; font-size: 12px; flex: 0; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .message { padding: 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; display: none; font-weight: 500; }
     .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
     .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; display: block; }
     #dashboard { display: none; max-width: 720px; margin: 0 auto; }
-    .topbar {
-      background: white; border-radius: 16px; padding: 16px 20px;
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 16px;
-    }
-    .topbar .brand {
-      font-weight: 800; font-size: 18px; color: #1a202c;
-      display: flex; align-items: center; gap: 8px;
-    }
+    .topbar { background: white; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 16px; }
+    .topbar .brand { font-weight: 800; font-size: 18px; color: #1a202c; display: flex; align-items: center; gap: 8px; }
     .topbar .who { font-size: 12px; color: #94a3b8; word-break: break-all; flex: 1; min-width: 140px; font-weight: 500; }
     .topbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .tab-bar {
-      display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;
-      padding-bottom: 4px; scroll-behavior: smooth;
-    }
-    .tab-btn {
-      flex: 1; min-width: 90px; padding: 12px 8px; border: none; border-radius: 12px;
-      background: rgba(255,255,255,0.25); color: white; font-weight: 700;
-      font-size: 13px; cursor: pointer; white-space: nowrap;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(10px);
-    }
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
+    .tab-btn { flex: 1; min-width: 90px; padding: 12px 8px; border: none; border-radius: 12px; background: rgba(255,255,255,0.25); color: white; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); }
     .tab-btn:hover { background: rgba(255,255,255,0.4); transform: translateY(-2px); }
-    .tab-btn.active {
-      background: white; color: #667eea;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transform: translateY(-2px);
-    }
-    .add-btn {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white; border: none; border-radius: 12px;
-      padding: 16px 20px; font-size: 16px; font-weight: 700; cursor: pointer;
-      width: 100%; margin-bottom: 16px;
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-      transition: all 0.2s ease;
-    }
+    .tab-btn.active { background: white; color: #667eea; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transform: translateY(-2px); }
+    .add-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; padding: 16px 20px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 16px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); transition: all 0.2s ease; }
     .add-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5); }
-    .empty {
-      background: rgba(255,255,255,0.95); border-radius: 16px; padding: 40px 30px;
-      text-align: center; color: #64748b; font-size: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    .prop-card, .tenant-card, .rent-card, .pay-card {
-      background: white; border-radius: 16px; padding: 20px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(255,255,255,0.5);
-    }
-    .prop-card:hover, .tenant-card:hover, .rent-card:hover, .pay-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    }
-    .prop-card h3, .tenant-card h3, .rent-card h3, .pay-card h3 {
-      color: #1a202c; font-size: 18px; margin-bottom: 8px; font-weight: 700;
-    }
-    .prop-card .addr, .tenant-card .info, .rent-card .info, .pay-card .info {
-      color: #64748b; font-size: 14px; margin-bottom: 10px; font-weight: 500;
-    }
+    .empty { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 40px 30px; text-align: center; color: #64748b; font-size: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .prop-card, .tenant-card, .rent-card, .pay-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.5); }
+    .prop-card:hover, .tenant-card:hover, .rent-card:hover, .pay-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+    .prop-card h3, .tenant-card h3, .rent-card h3, .pay-card h3 { color: #1a202c; font-size: 18px; margin-bottom: 8px; font-weight: 700; }
+    .prop-card .addr, .tenant-card .info, .rent-card .info, .pay-card .info { color: #64748b; font-size: 14px; margin-bottom: 10px; font-weight: 500; }
     .prop-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .price { color: #667eea; font-weight: 700; font-size: 18px; }
     .price-usd { color: #10b981; font-weight: 700; font-size: 18px; }
-    .badge {
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
-      letter-spacing: 0.3px;
-    }
+    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
     .badge.available { background: #d1fae5; color: #065f46; }
     .badge.rented { background: #fee2e2; color: #991b1b; }
     .badge.inactive { background: #f1f5f9; color: #64748b; }
     .badge.paid { background: #d1fae5; color: #065f46; }
     .badge.unpaid { background: #fee2e2; color: #991b1b; }
+    .badge.trial { background: #dbeafe; color: #1e40af; }
+    .badge.active { background: #d1fae5; color: #065f46; }
+    .badge.expired { background: #fee2e2; color: #991b1b; }
+    .badge.suspended { background: #f1f5f9; color: #64748b; }
     .prop-actions, .tenant-actions, .rent-actions, .pay-actions { display: flex; gap: 8px; margin-top: 14px; }
     .prop-actions .btn, .tenant-actions .btn, .rent-actions .btn, .pay-actions .btn { padding: 10px 14px; font-size: 14px; }
-    .modal {
-      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
-      z-index: 100; align-items: flex-end; justify-content: center;
-      backdrop-filter: blur(4px);
-      animation: fadeIn 0.2s ease;
-    }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
     .modal.open { display: flex; }
-    .modal-box {
-      background: white; width: 100%; max-width: 480px;
-      border-radius: 20px 20px 0 0; padding: 28px;
-      max-height: 85vh; overflow-y: auto;
-      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    .modal-box { background: white; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 28px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @media (min-width: 600px) {
-      .modal { align-items: center; }
-      .modal-box { border-radius: 20px; }
-    }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @media (min-width: 600px) { .modal { align-items: center; } .modal-box { border-radius: 20px; } }
     .modal-box h2 { color: #1a202c; margin-bottom: 20px; font-size: 22px; font-weight: 700; }
-    .forgot-link {
-      display: block; text-align: right; font-size: 13px;
-      color: #667eea; text-decoration: none; margin-top: 8px; font-weight: 600;
-      transition: color 0.2s ease;
-    }
+    .forgot-link { display: block; text-align: right; font-size: 13px; color: #667eea; text-decoration: none; margin-top: 8px; font-weight: 600; transition: color 0.2s ease; }
     .forgot-link:hover { color: #764ba2; }
     .contact-row { display: flex; gap: 8px; font-size: 13px; color: #475569; margin-bottom: 6px; font-weight: 500; }
     .contact-row span { flex: 1; word-break: break-word; }
     .currency-label { font-size: 11px; color: #94a3b8; margin-top: 4px; text-align: right; font-weight: 500; }
     .input-currency-toggle { display: flex; gap: 6px; margin-top: 8px; }
     .input-currency-toggle .curr-btn { font-size: 12px; padding: 6px 12px; }
-    
-    /* Dashboard Styles */
     .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
-    .stat-card {
-      background: white; border-radius: 16px; padding: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      text-align: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: fadeSlideIn 0.5s ease;
-    }
+    .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); animation: fadeSlideIn 0.5s ease; }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
     .stat-card .stat-icon { font-size: 36px; margin-bottom: 10px; }
     .stat-card .stat-value { font-size: 32px; font-weight: 800; color: #667eea; margin-bottom: 6px; letter-spacing: -1px; }
     .stat-card .stat-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-card.highlight {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
-    }
+    .stat-card.highlight { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
     .stat-card.highlight .stat-value { color: white; }
     .stat-card.highlight .stat-label { color: rgba(255,255,255,0.9); }
-    .insight-card {
-      background: white; border-radius: 16px; padding: 20px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      animation: fadeSlideIn 0.5s ease;
-    }
-    .insight-card h3 {
-      color: #1a202c; font-size: 16px; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px; font-weight: 700;
-    }
+    .insight-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeSlideIn 0.5s ease; }
+    .insight-card h3 { color: #1a202c; font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
     .progress-bar { background: #f1f5f9; border-radius: 10px; height: 14px; overflow: hidden; margin: 12px 0; }
-    .progress-fill {
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-      height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 10px;
-    }
-    .unpaid-item {
-      background: #fef2f2; border-left: 4px solid #ef4444;
-      padding: 14px; border-radius: 10px; margin-bottom: 10px;
-      animation: fadeSlideIn 0.4s ease;
-    }
+    .progress-fill { background: linear-gradient(90deg, #10b981 0%, #059669 100%); height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
+    .unpaid-item { background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px; border-radius: 10px; margin-bottom: 10px; animation: fadeSlideIn 0.4s ease; }
     .unpaid-item .name { font-weight: 700; color: #1a202c; margin-bottom: 4px; font-size: 14px; }
     .unpaid-item .detail { font-size: 13px; color: #64748b; font-weight: 500; }
-    .welcome-card {
-      background: white; border-radius: 16px; padding: 24px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      animation: fadeSlideIn 0.5s ease;
-    }
+    .welcome-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeSlideIn 0.5s ease; }
     .welcome-card h2 { color: #1a202c; font-size: 22px; margin-bottom: 8px; font-weight: 800; }
     .welcome-card p { color: #64748b; font-size: 14px; font-weight: 500; }
-    
-    /* View transitions */
     .view-content { animation: fadeSlideIn 0.4s ease; }
-    
-    /* Scrollbar styling */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(102, 126, 234, 0.3); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(102, 126, 234, 0.5); }
+    
+    /* Admin Panel Styles */
+    .admin-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+    .admin-stat { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
+    .admin-stat .value { font-size: 28px; font-weight: 800; color: #667eea; margin-bottom: 4px; }
+    .admin-stat .label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-stat.green { background: linear-gradient(135deg, #10b981, #059669); }
+    .admin-stat.green .value, .admin-stat.green .label { color: white; }
+    .admin-stat.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .admin-stat.red .value, .admin-stat.red .label { color: white; }
+    .admin-stat.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .admin-stat.orange .value, .admin-stat.orange .label { color: white; }
+    .user-table { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .user-table h3 { color: #1a202c; font-size: 16px; margin-bottom: 14px; font-weight: 700; }
+    .user-item { background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #667eea; transition: all 0.2s ease; }
+    .user-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .user-item.trial { border-left-color: #3b82f6; }
+    .user-item.active { border-left-color: #10b981; }
+    .user-item.expired { border-left-color: #ef4444; }
+    .user-item.suspended { border-left-color: #94a3b8; }
+    .user-item.admin { border-left-color: #f59e0b; background: #fffbeb; }
+    .user-email { font-weight: 700; color: #1a202c; font-size: 14px; margin-bottom: 6px; word-break: break-all; }
+    .user-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #64748b; margin-bottom: 10px; }
+    .user-meta span { display: flex; align-items: center; gap: 4px; }
+    .user-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .user-actions .btn { padding: 6px 10px; font-size: 11px; flex: 0; }
+    .blocked-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .blocked-card { background: white; border-radius: 20px; padding: 32px; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .blocked-card .icon { font-size: 64px; margin-bottom: 16px; }
+    .blocked-card h2 { color: #1a202c; font-size: 22px; margin-bottom: 12px; font-weight: 800; }
+    .blocked-card p { color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
   </style>
 </head>
 <body>
+  <!-- AUTH FORM -->
   <div class="card" id="authForm">
     <div class="top-controls">
       <div class="lang-toggle">
@@ -279,6 +178,17 @@
     </div>
   </div>
 
+  <!-- BLOCKED OVERLAY (untuk user expired/suspended) -->
+  <div class="blocked-overlay" id="blockedOverlay" style="display:none;">
+    <div class="blocked-card">
+      <div class="icon" id="blockedIcon">🔒</div>
+      <h2 id="blockedTitle">Account Suspended</h2>
+      <p id="blockedMessage">Your subscription has ended.</p>
+      <button class="btn btn-primary" id="btnBlockedLogout">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
   <div id="dashboard">
     <div class="topbar">
       <div class="brand">
@@ -304,46 +214,30 @@
       </div>
     </div>
 
-    <div class="tab-bar">
+    <div class="tab-bar" id="tabBar">
       <button class="tab-btn active" id="tabDash">📊 Dashboard</button>
       <button class="tab-btn" id="tabProp">🏠 Properties</button>
       <button class="tab-btn" id="tabTen">👥 Tenants</button>
       <button class="tab-btn" id="tabRent">📄 Rentals</button>
       <button class="tab-btn" id="tabPay">💰 Payments</button>
+      <button class="tab-btn" id="tabAdmin" style="display:none;">⚙️ Admin</button>
     </div>
 
+    <!-- DASHBOARD VIEW -->
     <div id="viewDash" class="view-content">
       <div class="welcome-card">
         <h2 id="welcomeTitle">Welcome back!</h2>
         <p id="welcomeSubtitle">Here's your business overview for this month.</p>
       </div>
       <div class="dash-grid">
-        <div class="stat-card">
-          <div class="stat-icon">🏠</div>
-          <div class="stat-value" id="statProps">0</div>
-          <div class="stat-label" id="labelStatProps">Properties</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-value" id="statTens">0</div>
-          <div class="stat-label" id="labelStatTens">Tenants</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📄</div>
-          <div class="stat-value" id="statRents">0</div>
-          <div class="stat-label" id="labelStatRents">Active Rentals</div>
-        </div>
-        <div class="stat-card highlight">
-          <div class="stat-icon">💰</div>
-          <div class="stat-value" id="statIncome">$0</div>
-          <div class="stat-label" id="labelStatIncome">Income This Month</div>
-        </div>
+        <div class="stat-card"><div class="stat-icon">🏠</div><div class="stat-value" id="statProps">0</div><div class="stat-label" id="labelStatProps">Properties</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statTens">0</div><div class="stat-label" id="labelStatTens">Tenants</div></div>
+        <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="statRents">0</div><div class="stat-label" id="labelStatRents">Active Rentals</div></div>
+        <div class="stat-card highlight"><div class="stat-icon">💰</div><div class="stat-value" id="statIncome">$0</div><div class="stat-label" id="labelStatIncome">Income This Month</div></div>
       </div>
       <div class="insight-card">
         <h3>📈 <span id="labelOccupancy">Occupancy Rate</span></h3>
-        <div class="progress-bar">
-          <div class="progress-fill" id="occupancyFill" style="width: 0%;"></div>
-        </div>
+        <div class="progress-bar"><div class="progress-fill" id="occupancyFill" style="width: 0%;"></div></div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; font-weight:600;">
           <span id="occupancyText">0% occupied</span>
           <span id="occupancyDetail">0 of 0 properties</span>
@@ -355,28 +249,44 @@
       </div>
     </div>
 
+    <!-- ADMIN VIEW -->
+    <div id="viewAdmin" class="view-content" style="display:none;">
+      <div class="welcome-card">
+        <h2 id="adminWelcomeTitle">👑 Admin Panel</h2>
+        <p id="adminWelcomeSubtitle">Manage all RentDesk users</p>
+      </div>
+      <div class="admin-stats">
+        <div class="admin-stat"><div class="value" id="adminTotal">0</div><div class="label" id="labelAdminTotal">Total Users</div></div>
+        <div class="admin-stat green"><div class="value" id="adminActive">0</div><div class="label" id="labelAdminActive">Active</div></div>
+        <div class="admin-stat orange"><div class="value" id="adminTrial">0</div><div class="label" id="labelAdminTrial">On Trial</div></div>
+        <div class="admin-stat red"><div class="value" id="adminExpired">0</div><div class="label" id="labelAdminExpired">Expired</div></div>
+      </div>
+      <div class="user-table">
+        <h3 id="labelUserList">👥 All Users</h3>
+        <div id="userList"></div>
+      </div>
+    </div>
+
+    <!-- OTHER VIEWS -->
     <div id="viewProp" class="view-content" style="display:none;">
       <button class="add-btn" id="btnAddProp">➕ Add Property</button>
       <div id="propList"></div>
     </div>
-
     <div id="viewTen" class="view-content" style="display:none;">
       <button class="add-btn" id="btnAddTen">➕ Add Tenant</button>
       <div id="tenantList"></div>
     </div>
-
     <div id="viewRent" class="view-content" style="display:none;">
       <button class="add-btn" id="btnAddRent">➕ New Rental</button>
       <div id="rentList"></div>
     </div>
-
     <div id="viewPay" class="view-content" style="display:none;">
       <button class="add-btn" id="btnAddPay">➕ Record Payment</button>
       <div id="payList"></div>
     </div>
   </div>
 
-  <!-- Modal Properti -->
+  <!-- MODAL PROPERTI -->
   <div class="modal" id="modalProp">
     <div class="modal-box">
       <h2 id="modalTitleProp">Add Property</h2>
@@ -389,7 +299,7 @@
     </div>
   </div>
 
-  <!-- Modal Penyewa -->
+  <!-- MODAL PENYEWA -->
   <div class="modal" id="modalTen">
     <div class="modal-box">
       <h2 id="modalTitleTen">Add Tenant</h2>
@@ -403,7 +313,7 @@
     </div>
   </div>
 
-  <!-- Modal Sewa -->
+  <!-- MODAL SEWA -->
   <div class="modal" id="modalRent">
     <div class="modal-box">
       <h2 id="modalTitleRent">New Rental</h2>
@@ -418,7 +328,7 @@
     </div>
   </div>
 
-  <!-- Modal Pembayaran -->
+  <!-- MODAL PEMBAYARAN -->
   <div class="modal" id="modalPay">
     <div class="modal-box">
       <h2 id="modalTitlePay">Record Payment</h2>
@@ -435,7 +345,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAUnYXGF6n2G8-a4x3m3vDFOtkwGGTQa_0",
@@ -451,13 +361,15 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const EXCHANGE_RATE = 15500;
+    const ADMIN_EMAIL = 'togot6564@gmail.com';
+    const TRIAL_DAYS = 30;
 
     const translations = {
       en: {
         subtitle: 'Global Property & Tenant Management',
         labelEmail: 'Email', labelPassword: 'Password',
         btnMasuk: 'Sign In', btnDaftar: 'Sign Up', btnLogout: 'Sign Out', btnLupa: 'Forgot Password?',
-        tabDash: '📊 Dashboard', tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals', tabPay: '💰 Payments',
+        tabDash: '📊 Dashboard', tabProp: '🏠 Properties', tabTen: '👥 Tenants', tabRent: '📄 Rentals', tabPay: '💰 Payments', tabAdmin: '⚙️ Admin',
         btnAddProp: '➕ Add Property', btnAddTen: '➕ Add Tenant', btnAddRent: '➕ New Rental', btnAddPay: '➕ Record Payment',
         emptyProp: '📭 No properties yet.\nTap "Add Property" to create your first one.',
         emptyTen: '📭 No tenants yet.\nTap "Add Tenant" to register your first tenant.',
@@ -492,21 +404,36 @@
         period: '📅 Period', method: '💳 Method',
         welcomeTitle: 'Welcome back!',
         welcomeSubtitle: "Here's your business overview for this month.",
-        labelStatProps: 'Properties',
-        labelStatTens: 'Tenants',
-        labelStatRents: 'Active Rentals',
-        labelStatIncome: 'Income This Month',
-        labelOccupancy: 'Occupancy Rate',
-        labelUnpaid: 'Unpaid This Month',
+        labelStatProps: 'Properties', labelStatTens: 'Tenants', labelStatRents: 'Active Rentals', labelStatIncome: 'Income This Month',
+        labelOccupancy: 'Occupancy Rate', labelUnpaid: 'Unpaid This Month',
         noUnpaid: '✅ All active rentals are paid this month!',
-        occupiedText: '% occupied',
-        ofText: 'of'
+        occupiedText: '% occupied', ofText: 'of',
+        // Admin
+        adminWelcomeTitle: '👑 Admin Panel',
+        adminWelcomeSubtitle: 'Manage all RentDesk users',
+        labelAdminTotal: 'Total Users', labelAdminActive: 'Active', labelAdminTrial: 'On Trial', labelAdminExpired: 'Expired',
+        labelUserList: '👥 All Users',
+        statusTrial: 'Trial', statusActive: 'Active', statusExpired: 'Expired', statusSuspended: 'Suspended', statusAdmin: 'Admin',
+        registered: 'Registered', trialEnds: 'Trial ends', lastLogin: 'Last login',
+        btnExtend: '⏰ Extend', btnSuspend: '🚫 Suspend', btnActivate: '✅ Activate', btnDelete: '🗑️ Delete',
+        blockedTrialTitle: '⏰ Trial Expired',
+        blockedTrialMsg: 'Your 30-day free trial has ended. Please contact the admin to continue using RentDesk.',
+        blockedSuspendedTitle: '🚫 Account Suspended',
+        blockedSuspendedMsg: 'Your account has been suspended. Please contact the admin for assistance.',
+        blockedExpiredTitle: '❌ Subscription Ended',
+        blockedExpiredMsg: 'Your subscription has ended. Please contact the admin to renew.',
+        confirmExtend: 'Extend trial by 30 days for this user?',
+        confirmSuspend: 'Suspend this user? They will not be able to login.',
+        confirmActivate: 'Activate this user?',
+        confirmDelete: 'Delete this user permanently?',
+        actionSuccess: '✅ Action completed successfully',
+        actionError: '❌ Action failed: '
       },
       id: {
         subtitle: 'Pengelolaan Properti & Penyewa Global',
         labelEmail: 'Email', labelPassword: 'Kata Sandi',
         btnMasuk: 'Masuk', btnDaftar: 'Daftar', btnLogout: 'Keluar', btnLupa: 'Lupa Password?',
-        tabDash: '📊 Dashboard', tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa', tabPay: '💰 Pembayaran',
+        tabDash: '📊 Dashboard', tabProp: '🏠 Properti', tabTen: '👥 Penyewa', tabRent: '📄 Sewa', tabPay: '💰 Pembayaran', tabAdmin: '⚙️ Admin',
         btnAddProp: '➕ Tambah Properti', btnAddTen: '➕ Tambah Penyewa', btnAddRent: '➕ Sewa Baru', btnAddPay: '➕ Catat Pembayaran',
         emptyProp: '📭 Belum ada properti.\nKetuk "Tambah Properti" untuk membuat yang pertama.',
         emptyTen: '📭 Belum ada penyewa.\nKetuk "Tambah Penyewa" untuk mendaftarkan penyewa pertama.',
@@ -541,117 +468,95 @@
         period: '📅 Periode', method: '💳 Metode',
         welcomeTitle: 'Selamat datang kembali!',
         welcomeSubtitle: 'Berikut ringkasan bisnis Anda bulan ini.',
-        labelStatProps: 'Properti',
-        labelStatTens: 'Penyewa',
-        labelStatRents: 'Sewa Aktif',
-        labelStatIncome: 'Pendapatan Bulan Ini',
-        labelOccupancy: 'Tingkat Hunian',
-        labelUnpaid: 'Belum Dibayar Bulan Ini',
+        labelStatProps: 'Properti', labelStatTens: 'Penyewa', labelStatRents: 'Sewa Aktif', labelStatIncome: 'Pendapatan Bulan Ini',
+        labelOccupancy: 'Tingkat Hunian', labelUnpaid: 'Belum Dibayar Bulan Ini',
         noUnpaid: '✅ Semua sewa aktif sudah dibayar bulan ini!',
-        occupiedText: '% terisi',
-        ofText: 'dari'
+        occupiedText: '% terisi', ofText: 'dari',
+        adminWelcomeTitle: '👑 Panel Admin',
+        adminWelcomeSubtitle: 'Kelola semua pengguna RentDesk',
+        labelAdminTotal: 'Total User', labelAdminActive: 'Aktif', labelAdminTrial: 'Trial', labelAdminExpired: 'Expired',
+        labelUserList: '👥 Semua Pengguna',
+        statusTrial: 'Trial', statusActive: 'Aktif', statusExpired: 'Expired', statusSuspended: 'Suspended', statusAdmin: 'Admin',
+        registered: 'Daftar', trialEnds: 'Trial s/d', lastLogin: 'Login terakhir',
+        btnExtend: '⏰ Extend', btnSuspend: '🚫 Suspend', btnActivate: '✅ Aktifkan', btnDelete: '🗑️ Hapus',
+        blockedTrialTitle: '⏰ Trial Berakhir',
+        blockedTrialMsg: 'Masa trial 30 hari Anda telah berakhir. Silakan hubungi admin untuk melanjutkan.',
+        blockedSuspendedTitle: '🚫 Akun Disuspend',
+        blockedSuspendedMsg: 'Akun Anda telah disuspend. Silakan hubungi admin untuk bantuan.',
+        blockedExpiredTitle: '❌ Langganan Berakhir',
+        blockedExpiredMsg: 'Langganan Anda telah berakhir. Silakan hubungi admin untuk memperbarui.',
+        confirmExtend: 'Perpanjang trial 30 hari untuk user ini?',
+        confirmSuspend: 'Suspend user ini? Mereka tidak bisa login.',
+        confirmActivate: 'Aktifkan user ini?',
+        confirmDelete: 'Hapus user ini secara permanen?',
+        actionSuccess: '✅ Aksi berhasil',
+        actionError: '❌ Aksi gagal: '
       }
     };
 
     let currentLang = 'en';
     let displayCurrency = 'USD';
-    let inputCurrencyProp = 'USD';
-    let inputCurrencyRent = 'USD';
-    let inputCurrencyPay = 'USD';
+    let inputCurrencyProp = 'USD', inputCurrencyRent = 'USD', inputCurrencyPay = 'USD';
     const t = () => translations[currentLang];
     let currentUser = null;
-    let unsubProp = null, unsubTen = null, unsubRent = null, unsubPay = null;
-    let currentProps = [], currentTenants = [], currentRentals = [], currentPayments = [];
+    let currentUserData = null;
+    let unsubProp = null, unsubTen = null, unsubRent = null, unsubPay = null, unsubUsers = null;
+    let currentProps = [], currentTenants = [], currentRentals = [], currentPayments = [], allUsers = [];
     let editingPropId = null, editingTenId = null, editingRentId = null, editingPayId = null;
 
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const get = (doc, idKey, enKey) => doc[idKey] !== undefined ? doc[idKey] : doc[enKey];
+    const get = (d, idKey, enKey) => d[idKey] !== undefined ? d[idKey] : d[enKey];
 
-    function toUSD(amount, currency) {
-      const n = Number(amount || 0);
-      return currency === 'IDR' ? n / EXCHANGE_RATE : n;
-    }
-
+    function toUSD(amount, currency) { const n = Number(amount || 0); return currency === 'IDR' ? n / EXCHANGE_RATE : n; }
     function fmtPrice(usdAmount) {
       const usd = Number(usdAmount || 0);
       if (displayCurrency === 'USD') return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return 'Rp ' + Math.round(usd * EXCHANGE_RATE).toLocaleString('id-ID');
     }
-
     function fmtEquiv(usdAmount) {
       const usd = Number(usdAmount || 0);
       if (displayCurrency === 'USD') return '≈ Rp ' + Math.round(usd * EXCHANGE_RATE).toLocaleString('id-ID');
       return '≈ $' + usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-
     function getCurrentMonth() {
       const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      return `${y}-${m}`;
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+    function formatDate(ts) {
+      if (!ts) return '-';
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString(currentLang === 'id' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    function addDays(date, days) {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
     }
 
     function setLang(lang) {
       currentLang = lang; const x = translations[lang];
-      document.getElementById('subtitle').textContent = x.subtitle;
-      document.getElementById('labelEmail').textContent = x.labelEmail;
-      document.getElementById('labelPassword').textContent = x.labelPassword;
-      document.getElementById('btnMasuk').textContent = x.btnMasuk;
-      document.getElementById('btnDaftar').textContent = x.btnDaftar;
-      document.getElementById('btnLogout').textContent = x.btnLogout;
-      document.getElementById('btnLupa').textContent = x.btnLupa;
-      document.getElementById('tabDash').textContent = x.tabDash;
-      document.getElementById('tabProp').textContent = x.tabProp;
-      document.getElementById('tabTen').textContent = x.tabTen;
-      document.getElementById('tabRent').textContent = x.tabRent;
-      document.getElementById('tabPay').textContent = x.tabPay;
-      document.getElementById('btnAddProp').textContent = x.btnAddProp;
-      document.getElementById('btnAddTen').textContent = x.btnAddTen;
-      document.getElementById('btnAddRent').textContent = x.btnAddRent;
-      document.getElementById('btnAddPay').textContent = x.btnAddPay;
-      document.getElementById('labelPName').textContent = x.labelPName;
-      document.getElementById('labelPAddr').textContent = x.labelPAddr;
-      document.getElementById('labelPPrice').textContent = x.labelPPrice;
-      document.getElementById('labelPStatus').textContent = x.labelPStatus;
-      document.getElementById('optAvailable').textContent = x.optAvailable;
-      document.getElementById('optRented').textContent = x.optRented;
-      document.getElementById('labelTName').textContent = x.labelTName;
-      document.getElementById('labelTId').textContent = x.labelTId;
-      document.getElementById('labelTPhone').textContent = x.labelTPhone;
-      document.getElementById('labelTEmail').textContent = x.labelTEmail;
-      document.getElementById('labelTNotes').textContent = x.labelTNotes;
-      document.getElementById('labelRTenant').textContent = x.labelRTenant;
-      document.getElementById('labelRProperty').textContent = x.labelRProperty;
-      document.getElementById('labelRStart').textContent = x.labelRStart;
-      document.getElementById('labelREnd').textContent = x.labelREnd;
-      document.getElementById('labelRPrice').textContent = x.labelRPrice;
-      document.getElementById('labelRStatus').textContent = x.labelRStatus;
-      document.getElementById('optActive').textContent = x.optActive;
-      document.getElementById('optInactive').textContent = x.optInactive;
-      document.getElementById('labelPayRental').textContent = x.labelPayRental;
-      document.getElementById('labelPayMonth').textContent = x.labelPayMonth;
-      document.getElementById('labelPayAmount').textContent = x.labelPayAmount;
-      document.getElementById('labelPayDate').textContent = x.labelPayDate;
-      document.getElementById('labelPayMethod').textContent = x.labelPayMethod;
-      document.getElementById('optTransfer').textContent = x.optTransfer;
-      document.getElementById('optCash').textContent = x.optCash;
-      document.getElementById('optEwallet').textContent = x.optEwallet;
-      document.getElementById('btnCancelProp').textContent = x.btnCancel;
-      document.getElementById('btnSaveProp').textContent = x.btnSave;
-      document.getElementById('btnCancelTen').textContent = x.btnCancel;
-      document.getElementById('btnSaveTen').textContent = x.btnSave;
-      document.getElementById('btnCancelRent').textContent = x.btnCancel;
-      document.getElementById('btnSaveRent').textContent = x.btnSave;
-      document.getElementById('btnCancelPay').textContent = x.btnCancel;
-      document.getElementById('btnSavePay').textContent = x.btnSave;
-      document.getElementById('welcomeTitle').textContent = x.welcomeTitle;
-      document.getElementById('welcomeSubtitle').textContent = x.welcomeSubtitle;
-      document.getElementById('labelStatProps').textContent = x.labelStatProps;
-      document.getElementById('labelStatTens').textContent = x.labelStatTens;
-      document.getElementById('labelStatRents').textContent = x.labelStatRents;
-      document.getElementById('labelStatIncome').textContent = x.labelStatIncome;
-      document.getElementById('labelOccupancy').textContent = x.labelOccupancy;
-      document.getElementById('labelUnpaid').textContent = x.labelUnpaid;
+      const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+      set('subtitle', x.subtitle); set('labelEmail', x.labelEmail); set('labelPassword', x.labelPassword);
+      set('btnMasuk', x.btnMasuk); set('btnDaftar', x.btnDaftar); set('btnLogout', x.btnLogout); set('btnLupa', x.btnLupa);
+      set('tabDash', x.tabDash); set('tabProp', x.tabProp); set('tabTen', x.tabTen); set('tabRent', x.tabRent); set('tabPay', x.tabPay); set('tabAdmin', x.tabAdmin);
+      set('btnAddProp', x.btnAddProp); set('btnAddTen', x.btnAddTen); set('btnAddRent', x.btnAddRent); set('btnAddPay', x.btnAddPay);
+      set('labelPName', x.labelPName); set('labelPAddr', x.labelPAddr); set('labelPPrice', x.labelPPrice); set('labelPStatus', x.labelPStatus);
+      set('optAvailable', x.optAvailable); set('optRented', x.optRented);
+      set('labelTName', x.labelTName); set('labelTId', x.labelTId); set('labelTPhone', x.labelTPhone); set('labelTEmail', x.labelTEmail); set('labelTNotes', x.labelTNotes);
+      set('labelRTenant', x.labelRTenant); set('labelRProperty', x.labelRProperty); set('labelRStart', x.labelRStart); set('labelREnd', x.labelREnd); set('labelRPrice', x.labelRPrice); set('labelRStatus', x.labelRStatus);
+      set('optActive', x.optActive); set('optInactive', x.optInactive);
+      set('labelPayRental', x.labelPayRental); set('labelPayMonth', x.labelPayMonth); set('labelPayAmount', x.labelPayAmount); set('labelPayDate', x.labelPayDate); set('labelPayMethod', x.labelPayMethod);
+      set('optTransfer', x.optTransfer); set('optCash', x.optCash); set('optEwallet', x.optEwallet);
+      set('btnCancelProp', x.btnCancel); set('btnSaveProp', x.btnSave);
+      set('btnCancelTen', x.btnCancel); set('btnSaveTen', x.btnSave);
+      set('btnCancelRent', x.btnCancel); set('btnSaveRent', x.btnSave);
+      set('btnCancelPay', x.btnCancel); set('btnSavePay', x.btnSave);
+      set('welcomeTitle', x.welcomeTitle); set('welcomeSubtitle', x.welcomeSubtitle);
+      set('labelStatProps', x.labelStatProps); set('labelStatTens', x.labelStatTens); set('labelStatRents', x.labelStatRents); set('labelStatIncome', x.labelStatIncome);
+      set('labelOccupancy', x.labelOccupancy); set('labelUnpaid', x.labelUnpaid);
+      set('adminWelcomeTitle', x.adminWelcomeTitle); set('adminWelcomeSubtitle', x.adminWelcomeSubtitle);
+      set('labelAdminTotal', x.labelAdminTotal); set('labelAdminActive', x.labelAdminActive); set('labelAdminTrial', x.labelAdminTrial); set('labelAdminExpired', x.labelAdminExpired);
+      set('labelUserList', x.labelUserList);
       document.getElementById('btnEN').classList.toggle('active', lang==='en');
       document.getElementById('btnID').classList.toggle('active', lang==='id');
       document.getElementById('btnEN2').classList.toggle('active', lang==='en');
@@ -668,23 +573,20 @@
       document.getElementById('btnIDR').classList.toggle('active', curr==='IDR');
       renderAll();
     }
-
     function setInputCurrencyProp(curr) { inputCurrencyProp = curr; document.getElementById('pCurrUSD').classList.toggle('active', curr==='USD'); document.getElementById('pCurrIDR').classList.toggle('active', curr==='IDR'); }
     function setInputCurrencyRent(curr) { inputCurrencyRent = curr; document.getElementById('rCurrUSD').classList.toggle('active', curr==='USD'); document.getElementById('rCurrIDR').classList.toggle('active', curr==='IDR'); }
     function setInputCurrencyPay(curr) { inputCurrencyPay = curr; document.getElementById('payCurrUSD').classList.toggle('active', curr==='USD'); document.getElementById('payCurrIDR').classList.toggle('active', curr==='IDR'); }
 
     function switchTab(tab) {
-      document.getElementById('tabDash').classList.toggle('active', tab==='dash');
-      document.getElementById('tabProp').classList.toggle('active', tab==='prop');
-      document.getElementById('tabTen').classList.toggle('active', tab==='ten');
-      document.getElementById('tabRent').classList.toggle('active', tab==='rent');
-      document.getElementById('tabPay').classList.toggle('active', tab==='pay');
-      document.getElementById('viewDash').style.display = tab==='dash' ? 'block' : 'none';
-      document.getElementById('viewProp').style.display = tab==='prop' ? 'block' : 'none';
-      document.getElementById('viewTen').style.display = tab==='ten' ? 'block' : 'none';
-      document.getElementById('viewRent').style.display = tab==='rent' ? 'block' : 'none';
-      document.getElementById('viewPay').style.display = tab==='pay' ? 'block' : 'none';
+      const tabs = ['dash','prop','ten','rent','pay','admin'];
+      tabs.forEach(tb => {
+        const tabBtn = document.getElementById('tab' + tb.charAt(0).toUpperCase() + tb.slice(1));
+        const view = document.getElementById('view' + tb.charAt(0).toUpperCase() + tb.slice(1));
+        if (tabBtn) tabBtn.classList.toggle('active', tb===tab);
+        if (view) view.style.display = tb===tab ? 'block' : 'none';
+      });
       if (tab === 'dash') renderDashboard();
+      if (tab === 'admin') renderAdmin();
     }
 
     function showMessage(text, type, targetId='message') {
@@ -696,16 +598,74 @@
       if (m) m.className = 'message';
     }
 
+    // ============ USER TRACKING ============
+    async function ensureUserRecord(uid, email) {
+      const userRef = doc(db, 'users', uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        const now = new Date();
+        const trialEnds = addDays(now, TRIAL_DAYS);
+        await setDoc(userRef, {
+          email: email,
+          role: email === ADMIN_EMAIL ? 'admin' : 'user',
+          status: 'trial',
+          createdAt: serverTimestamp(),
+          trialEndsAt: trialEnds,
+          lastLogin: serverTimestamp()
+        });
+      } else {
+        await updateDoc(userRef, { lastLogin: serverTimestamp() });
+      }
+      const newSnap = await getDoc(userRef);
+      return { id: newSnap.id, ...newSnap.data() };
+    }
+
+    function checkUserAccess(userData) {
+      if (!userData) return { allowed: true };
+      if (userData.role === 'admin') return { allowed: true };
+      if (userData.status === 'suspended') return { allowed: false, reason: 'suspended' };
+      if (userData.status === 'expired') return { allowed: false, reason: 'expired' };
+      if (userData.status === 'trial') {
+        const trialEnds = userData.trialEndsAt?.toDate ? userData.trialEndsAt.toDate() : new Date(userData.trialEndsAt);
+        if (new Date() > trialEnds) {
+          return { allowed: false, reason: 'trial_expired' };
+        }
+      }
+      return { allowed: true };
+    }
+
+    function showBlockedScreen(reason) {
+      const x = t();
+      const overlay = document.getElementById('blockedOverlay');
+      const icon = document.getElementById('blockedIcon');
+      const title = document.getElementById('blockedTitle');
+      const msg = document.getElementById('blockedMessage');
+      if (reason === 'suspended') { icon.textContent = '🚫'; title.textContent = x.blockedSuspendedTitle; msg.textContent = x.blockedSuspendedMsg; }
+      else if (reason === 'trial_expired') { icon.textContent = '⏰'; title.textContent = x.blockedTrialTitle; msg.textContent = x.blockedTrialMsg; }
+      else { icon.textContent = '❌'; title.textContent = x.blockedExpiredTitle; msg.textContent = x.blockedExpiredMsg; }
+      overlay.style.display = 'flex';
+    }
+
+    // ============ AUTH HANDLERS ============
     async function handleLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('btnMasuk');
       if (!email || !password) return showMessage(t().required, 'error');
       btn.disabled = true; btn.textContent = '...'; clearMessage();
-      try { await signInWithEmailAndPassword(auth, email, password); }
-      catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const userData = await ensureUserRecord(cred.user.uid, email);
+        currentUserData = userData;
+        const access = checkUserAccess(userData);
+        if (!access.allowed) {
+          await signOut(auth);
+          showBlockedScreen(access.reason);
+        }
+      } catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
       finally { btn.disabled = false; btn.textContent = t().btnMasuk; }
     }
+
     async function handleDaftar() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
@@ -713,10 +673,13 @@
       if (!email || !password) return showMessage(t().required, 'error');
       if (password.length < 6) return showMessage(t().minPass, 'error');
       btn.disabled = true; btn.textContent = '...'; clearMessage();
-      try { await createUserWithEmailAndPassword(auth, email, password); }
-      catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await ensureUserRecord(cred.user.uid, email);
+      } catch (e) { showMessage(t().loginError + e.message.replace('Firebase: ','').replace(/\s\(auth.*\)/,''), 'error'); }
       finally { btn.disabled = false; btn.textContent = t().btnDaftar; }
     }
+
     async function handleReset() {
       const email = document.getElementById('email').value.trim();
       if (!email) return showMessage(t().resetNeedEmail, 'error');
@@ -728,7 +691,8 @@
       finally { btn.textContent = oldText; btn.style.pointerEvents = 'auto'; }
     }
 
-    function renderAll() { renderProps(currentProps); renderTenants(currentTenants); renderRentals(currentRentals); renderPayments(currentPayments); renderDashboard(); }
+    // ============ RENDER FUNCTIONS ============
+    function renderAll() { renderProps(currentProps); renderTenants(currentTenants); renderRentals(currentRentals); renderPayments(currentPayments); renderDashboard(); renderAdmin(); }
 
     function renderDashboard() {
       const x = t();
@@ -761,6 +725,48 @@
           return `<div class="unpaid-item"><div class="name">👤 ${esc(tenantName)} → 🏠 ${esc(propName)}</div><div class="detail">${fmtPrice(priceUSD)} • ${currentMonth}</div></div>`;
         }).join('');
       }
+    }
+
+    function renderAdmin() {
+      const x = t();
+      const total = allUsers.length;
+      const active = allUsers.filter(u => u.status === 'active').length;
+      const trial = allUsers.filter(u => u.status === 'trial').length;
+      const expired = allUsers.filter(u => u.status === 'expired' || u.status === 'suspended').length;
+      document.getElementById('adminTotal').textContent = total;
+      document.getElementById('adminActive').textContent = active;
+      document.getElementById('adminTrial').textContent = trial;
+      document.getElementById('adminExpired').textContent = expired;
+
+      const userList = document.getElementById('userList');
+      if (allUsers.length === 0) {
+        userList.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">No users yet</div>';
+        return;
+      }
+      userList.innerHTML = allUsers.map(u => {
+        const statusClass = u.role === 'admin' ? 'admin' : (u.status || 'trial');
+        const statusLabel = u.role === 'admin' ? x.statusAdmin : (x['status' + (u.status || 'trial').charAt(0).toUpperCase() + (u.status || 'trial').slice(1)] || u.status);
+        const trialEnds = u.trialEndsAt ? formatDate(u.trialEndsAt) : '-';
+        const registered = u.createdAt ? formatDate(u.createdAt) : '-';
+        const lastLogin = u.lastLogin ? formatDate(u.lastLogin) : '-';
+        const isAdmin = u.email === ADMIN_EMAIL;
+        return `<div class="user-item ${statusClass}">
+          <div class="user-email">${esc(u.email)} ${isAdmin ? '👑' : ''}</div>
+          <div class="user-meta">
+            <span>📅 ${x.registered}: ${registered}</span>
+            <span>⏰ ${x.trialEnds}: ${trialEnds}</span>
+            <span>🕐 ${x.lastLogin}: ${lastLogin}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span class="badge ${statusClass}">${statusLabel}</span>
+            ${!isAdmin ? `<div class="user-actions">
+              <button class="btn btn-warning btn-sm" onclick="window._extendUser('${u.id}')">${x.btnExtend}</button>
+              ${u.status !== 'suspended' ? `<button class="btn btn-danger btn-sm" onclick="window._suspendUser('${u.id}')">${x.btnSuspend}</button>` : `<button class="btn btn-success btn-sm" onclick="window._activateUser('${u.id}')">${x.btnActivate}</button>`}
+              <button class="btn btn-ghost btn-sm" onclick="window._deleteUser('${u.id}')">${x.btnDelete}</button>
+            </div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
     }
 
     function renderProps(list) {
@@ -828,6 +834,38 @@
       }).join('');
     }
 
+    // ============ ADMIN ACTIONS ============
+    window._extendUser = async (uid) => {
+      if (!confirm(t().confirmExtend)) return;
+      const newTrialEnds = addDays(new Date(), TRIAL_DAYS);
+      try {
+        await updateDoc(doc(db, 'users', uid), { status: 'trial', trialEndsAt: newTrialEnds });
+        alert(t().actionSuccess);
+      } catch (e) { alert(t().actionError + e.message); }
+    };
+    window._suspendUser = async (uid) => {
+      if (!confirm(t().confirmSuspend)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { status: 'suspended' });
+        alert(t().actionSuccess);
+      } catch (e) { alert(t().actionError + e.message); }
+    };
+    window._activateUser = async (uid) => {
+      if (!confirm(t().confirmActivate)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { status: 'active' });
+        alert(t().actionSuccess);
+      } catch (e) { alert(t().actionError + e.message); }
+    };
+    window._deleteUser = async (uid) => {
+      if (!confirm(t().confirmDelete)) return;
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+        alert(t().actionSuccess);
+      } catch (e) { alert(t().actionError + e.message); }
+    };
+
+    // ============ CRUD HANDLERS ============
     window._editProp = id => {
       const p = currentProps.find(x => x.id === id); if (!p) return;
       editingPropId = id; document.getElementById('modalTitleProp').textContent = t().modalEditProp;
@@ -998,7 +1036,7 @@
     }
 
     function startListening() {
-      if (unsubProp) unsubProp(); if (unsubTen) unsubTen(); if (unsubRent) unsubRent(); if (unsubPay) unsubPay();
+      if (unsubProp) unsubProp(); if (unsubTen) unsubTen(); if (unsubRent) unsubRent(); if (unsubPay) unsubPay(); if (unsubUsers) unsubUsers();
       const listen = (colName, setter) => {
         const q = query(collection(db, colName), where('ownerId', '==', currentUser.uid));
         return onSnapshot(q, snap => {
@@ -1026,22 +1064,59 @@
       unsubTen = listen('tenants', renderTenants);
       unsubRent = listen('rentals', renderRentals);
       unsubPay = listen('payments', renderPayments);
+      
+      // Listen all users (admin only)
+      if (currentUser.email === ADMIN_EMAIL) {
+        unsubUsers = onSnapshot(collection(db, 'users'), snap => {
+          allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          allUsers.sort((a, b) => {
+            const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return bTime - aTime;
+          });
+          renderAdmin();
+        });
+      }
     }
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) {
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('dashEmail').textContent = user.email;
-        startListening();
-        switchTab('dash');
+        try {
+          const userData = await ensureUserRecord(user.uid, user.email);
+          currentUserData = userData;
+          const access = checkUserAccess(userData);
+          if (!access.allowed) {
+            await signOut(auth);
+            showBlockedScreen(access.reason);
+            return;
+          }
+          document.getElementById('authForm').style.display = 'none';
+          document.getElementById('blockedOverlay').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+          document.getElementById('dashEmail').textContent = user.email;
+          // Show admin tab only for admin
+          document.getElementById('tabAdmin').style.display = user.email === ADMIN_EMAIL ? 'block' : 'none';
+          startListening();
+          switchTab(user.email === ADMIN_EMAIL ? 'admin' : 'dash');
+        } catch (e) {
+          console.error(e);
+          document.getElementById('authForm').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+          document.getElementById('dashEmail').textContent = user.email;
+          document.getElementById('tabAdmin').style.display = 'none';
+          startListening();
+          switchTab('dash');
+        }
       } else {
         document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('blockedOverlay').style.display = 'none';
         document.getElementById('authForm').style.display = 'block';
         if (unsubProp) { unsubProp(); unsubProp = null; } if (unsubTen) { unsubTen(); unsubTen = null; }
         if (unsubRent) { unsubRent(); unsubRent = null; } if (unsubPay) { unsubPay(); unsubPay = null; }
-        currentProps = []; currentTenants = []; currentRentals = []; currentPayments = [];
+        if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+        currentProps = []; currentTenants = []; currentRentals = []; currentPayments = []; allUsers = [];
+        currentUserData = null;
         clearMessage();
       }
     });
@@ -1050,11 +1125,13 @@
     document.getElementById('btnDaftar').addEventListener('click', handleDaftar);
     document.getElementById('btnLupa').addEventListener('click', (e) => { e.preventDefault(); handleReset(); });
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+    document.getElementById('btnBlockedLogout').addEventListener('click', () => signOut(auth));
     document.getElementById('tabDash').addEventListener('click', () => switchTab('dash'));
     document.getElementById('tabProp').addEventListener('click', () => switchTab('prop'));
     document.getElementById('tabTen').addEventListener('click', () => switchTab('ten'));
     document.getElementById('tabRent').addEventListener('click', () => switchTab('rent'));
     document.getElementById('tabPay').addEventListener('click', () => switchTab('pay'));
+    document.getElementById('tabAdmin').addEventListener('click', () => switchTab('admin'));
 
     document.getElementById('btnAddProp').addEventListener('click', () => {
       document.getElementById('modalTitleProp').textContent = t().modalAddProp;
